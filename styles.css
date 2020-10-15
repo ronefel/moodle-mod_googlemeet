@@ -1,0 +1,48 @@
+#googlemeetcontent {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+#googlemeetcontent > details[open] summary ~ * {
+    animation: sweep .5s ease-in-out;
+  }
+  
+@keyframes sweep {
+    0%    {opacity: 0}
+    100%  {opacity: 1}
+}
+
+#googlemeetcontent > details > summary,
+#page-admin-setting-modsettinggooglemeet details summary {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#googlemeetcontent > details > section {
+    margin-top: -40px;
+    margin-bottom: -20px;
+}
+
+#googlemeetcontent > details > section > ol {
+    margin: -20px 0 -20px 2.5em;
+}
+
+#googlemeetcontent > details > section > ol li{
+    margin: -6px 0;
+}
+
+#googlemeetcontentlog {
+    margin: 10px;
+}
+
+#page-mod-googlemeet-mod #fgroup_id_generateurlgroup .form-group.fitem[data-groupname="timeopen"],
+#page-mod-googlemeet-mod #fgroup_id_generateurlgroup .form-group.fitem[data-groupname="timeclose"] {
+    width: 100%;
+}
+
+#page-admin-setting-modsettinggooglemeet .form-item:last-child .form-description {
+    margin-left: -200px;
+}
