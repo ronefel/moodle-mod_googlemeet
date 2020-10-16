@@ -28,3 +28,4 @@ $plugin->component = 'mod_googlemeet';
 $plugin->release = '0.1.0';
 $plugin->version = 2020101500;
 $plugin->requires = 2019052000; // Moodle 3.7
+$plugin->maturity = MATURITY_STABLE;
