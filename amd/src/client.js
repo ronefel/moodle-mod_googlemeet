@@ -6,17 +6,31 @@ define(['core/notification', 'core/str'], function (notification, str) {
       // Array of API discovery doc URLs for APIs used by the quickstart
       var discoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
 
+      // Load strings
+      var requiredfield = '';
+      var creatingcalendarevent = '';
+      var eventsuccessfullycreated = '';
+      var creatingconferenceroom = '';
+      var conferencesuccessfullycreated = '';
+      str.get_strings([
+        {key: 'requiredfield', component: 'mod_googlemeet'},
+        {key: 'creatingcalendarevent', component: 'mod_googlemeet'},
+        {key: 'eventsuccessfullycreated', component: 'mod_googlemeet'},
+        {key: 'creatingconferenceroom', component: 'mod_googlemeet'},
+        {key: 'conferencesuccessfullycreated', component: 'mod_googlemeet'},
+      ]).done(function(strs) {
+        requiredfield = strs[0];
+        creatingcalendarevent = strs[1];
+        eventsuccessfullycreated = strs[2];
+        creatingconferenceroom = strs[3];
+        conferencesuccessfullycreated = strs[4];
+      }).fail(notification.exception);
+
+      // Elements references
       var generateLinkButton = document.getElementById('id_generateLink');
       var googlemeeturlInput = document.getElementById('id_url');
       var googlemeeturlInputError = document.getElementById('id_error_url');
       var form = document.querySelector('#region-main .mform');
-
-      /**
-       *  On load, called to load the auth2 library and API client library.
-       */
-      function handleClientLoad() {
-        gapi.load('client:auth2', initClient);
-      }
 
       /**
        *  Initializes the API client library and sets up sign-in state
@@ -31,13 +45,9 @@ define(['core/notification', 'core/str'], function (notification, str) {
         }).then(function () {
           gapi.auth2.getAuthInstance().signOut();
 
-          // eslint-disable-next-line no-console
-          // console.log(gapi.auth2.getAuthInstance().isSignedIn.get());
-
           generateLinkButton.onclick = handleAuthClick;
         }, function (error) {
           generateLinkButton.disabled = true;
-          clearPre();
           appendPre(JSON.stringify(error, null, 2));
         });
       }
@@ -54,9 +64,7 @@ define(['core/notification', 'core/str'], function (notification, str) {
 
           nameInput.classList.add('is-invalid');
           nameInput.focus();
-          str.get_string('requiredfield', 'mod_googlemeet').done(function(str) {
-            nameError.innerText = '- '+ str;
-          }).fail(notification.exception);
+          nameError.innerText = '- '+ requiredfield;
 
           return;
         }
@@ -81,11 +89,6 @@ define(['core/notification', 'core/str'], function (notification, str) {
         var pre = document.getElementById('googlemeetcontentlog');
         var textContent = document.createTextNode(message + '\n');
         pre.appendChild(textContent);
-      }
-
-      function clearPre() {
-        var pre = document.getElementById('googlemeetcontentlog');
-        pre.innerText = '';
       }
 
       function disableInputs() {
@@ -122,11 +125,6 @@ define(['core/notification', 'core/str'], function (notification, str) {
           input.setAttribute('tabindex', '-1');
           input.setAttribute('aria-disabled', true);
         });
-
-        // disable introeditor
-        // document.getElementById('id_introeditoreditable').contentEditable = "false";
-        // document.getElementsByClassName('editor_atto_toolbar')[0].remove();
-        // document.getElementsByClassName('editor_atto_content_wrap')[0].style.borderTop = '1px solid #ddd';
       }
 
       function createEvent() {
@@ -148,7 +146,9 @@ define(['core/notification', 'core/str'], function (notification, str) {
           };
         } else {
           start = {
-            date: currentDate.getFullYear()+'-'+(currentDate.getMonth() + 1)+'-'+currentDate.getDate(),
+            date: currentDate.getFullYear()+'-'+
+                  (currentDate.getMonth() + 1)+'-'+
+                  currentDate.getDate(),
           };
         }
 
@@ -164,14 +164,13 @@ define(['core/notification', 'core/str'], function (notification, str) {
           };
         } else {
           end = {
-            date: currentDate.getFullYear()+'-'+(currentDate.getMonth() + 1)+'-'+currentDate.getDate(),
+            date: currentDate.getFullYear()+'-'+
+                  (currentDate.getMonth() + 1)+'-'+
+                  currentDate.getDate(),
           };
         }
 
-        clearPre();
-        str.get_string('creatingcalendarevent', 'mod_googlemeet').done(function(str) {
-          appendPre(str);
-        }).fail(notification.exception);
+        appendPre(creatingcalendarevent);
 
         var event = {
           summary: formData.get('name'),
@@ -186,13 +185,8 @@ define(['core/notification', 'core/str'], function (notification, str) {
         });
 
         request.execute(function (event) {
-          str.get_strings([
-            {key: 'eventsuccessfullycreated', component: 'mod_googlemeet'},
-            {key: 'creatingconferenceroom', component: 'mod_googlemeet'},
-          ]).done(function(strs) {
-            appendPre('   '+ strs[0] +': '+ event.creator.email);
-            appendPre(strs[1]);
-          }).fail(notification.exception);
+          appendPre('   '+ eventsuccessfullycreated +': '+ event.creator.email);
+          appendPre(creatingconferenceroom);
 
           var eventPatch = {
             conferenceData: {
@@ -207,16 +201,23 @@ define(['core/notification', 'core/str'], function (notification, str) {
             sendNotifications: false,
             conferenceDataVersion: 1
           }).execute(function (event) {
-            str.get_string('conferencesuccessfullycreated', 'mod_googlemeet').done(function(str) {
-              appendPre('   '+ str +': ' + event.hangoutLink);
-            }).fail(notification.exception);
+            appendPre('   '+ conferencesuccessfullycreated +': ' + event.hangoutLink);
+
             googlemeeturlInput.value = event.hangoutLink;
             googlemeeturlInput.focus();
             googlemeeturlInput.classList.remove("is-invalid");
             googlemeeturlInputError.innerText = '';
+
             disableInputs();
           });
         });
+      }
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
       }
 
       window.addEventListener("load", handleClientLoad(), false);
