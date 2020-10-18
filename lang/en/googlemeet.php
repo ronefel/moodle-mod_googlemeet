@@ -56,6 +56,7 @@ $string['instructions'] = '<details>
 </section>
 </details>';
 $string['googlemeetgeneratelink'] = 'Generate room url';
+$string['eventduration'] = 'Event duration';
 $string['googlemeetopen'] = 'Event start date';
 $string['googlemeetclose'] = 'End date of the event';
 $string['googlemeetopenclose'] = 'Start date and end date of the event';

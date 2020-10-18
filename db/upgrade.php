@@ -36,12 +36,25 @@ function xmldb_googlemeet_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    // For further information please read the Upgrade API documentation:
-    // https://docs.moodle.org/dev/Upgrade_API
-    //
-    // You will also have to create the db/install.xml file by using the XMLDB Editor.
-    // Documentation for the XMLDB Editor can be found at:
-    // https://docs.moodle.org/dev/XMLDB_editor
+    if ($oldversion < 2020101700) {
+        $table = new xmldb_table('googlemeet');
 
+        // Define field timeopen to be added to googlemeet.
+        $field = new xmldb_field('timeopen', XMLDB_TYPE_INTEGER, '10', null, true, null, '0', 'introformat');
+        // Conditionally launch add field columns.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timeopen to be added to googlemeet.
+        $field = new xmldb_field('timeclose', XMLDB_TYPE_INTEGER, '10', null, true, null, '0', 'timeopen');
+        // Conditionally launch add field columns.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // googlemeet savepoint reached.
+        upgrade_mod_savepoint(true, 2020101700, 'googlemeet');
+    }
     return true;
 }

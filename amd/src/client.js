@@ -43,7 +43,6 @@ define(['core/notification', 'core/str'], function (notification, str) {
           discoveryDocs: discoveryDocs,
           scope: scope
         }).then(function () {
-          gapi.auth2.getAuthInstance().signOut();
 
           generateLinkButton.onclick = handleAuthClick;
         }, function (error) {

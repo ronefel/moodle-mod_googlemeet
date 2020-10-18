@@ -30,20 +30,29 @@ defined('MOODLE_INTERNAL') || die();
  * @param string $feature Constant representing the feature.
  * @return true | null True if the feature is supported, null otherwise.
  */
-function googlemeet_supports($feature)
-{
+function googlemeet_supports($feature) {
     switch ($feature) {
-        case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
-        case FEATURE_GROUPS:                  return false;
-        case FEATURE_GROUPINGS:               return false;
-        case FEATURE_MOD_INTRO:               return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_GRADE_HAS_GRADE:         return false;
-        case FEATURE_GRADE_OUTCOMES:          return false;
-        case FEATURE_BACKUP_MOODLE2:          return true;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
+        case FEATURE_MOD_ARCHETYPE:
+            return MOD_ARCHETYPE_RESOURCE;
+        case FEATURE_GROUPS:
+            return false;
+        case FEATURE_GROUPINGS:
+            return false;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_GRADE_HAS_GRADE:
+            return false;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
 
-        default: return null;
+        default:
+            return null;
     }
 }
 
@@ -54,19 +63,24 @@ function googlemeet_supports($feature)
  * in mod_form.php) this function will create a new instance and return the id
  * number of the instance.
  *
- * @param object $moduleinstance An object from the form.
+ * @param object $googlemeet An object from the form.
  * @param mod_googlemeet_mod_form $mform The form.
  * @return int The id of the newly inserted record.
  */
-function googlemeet_add_instance($moduleinstance, $mform = null)
-{
-    global $DB;
+function googlemeet_add_instance($googlemeet, $mform = null) {
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    $moduleinstance->timecreated = time();
+    $googlemeet->timecreated = time();
+    $googlemeet->timemodified = time();
 
-    $id = $DB->insert_record('googlemeet', $moduleinstance);
+    if (!$googlemeet->id = $DB->insert_record('googlemeet', $googlemeet)) {
+        return false;
+    }
 
-    return $id;
+    googlemeet_set_events($googlemeet);
+
+    return $googlemeet->id;
 }
 
 /**
@@ -75,17 +89,20 @@ function googlemeet_add_instance($moduleinstance, $mform = null)
  * Given an object containing all the necessary data (defined in mod_form.php),
  * this function will update an existing instance with new data.
  *
- * @param object $moduleinstance An object from the form in mod_form.php.
+ * @param object $googlemeet An object from the form in mod_form.php.
  * @param mod_googlemeet_mod_form $mform The form.
  * @return bool True if successful, false otherwise.
  */
-function googlemeet_update_instance($moduleinstance, $mform = null) {
-    global $DB;
+function googlemeet_update_instance($googlemeet, $mform = null) {
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    $moduleinstance->timemodified = time();
-    $moduleinstance->id = $moduleinstance->instance;
+    $googlemeet->timemodified = time();
+    $googlemeet->id = $googlemeet->instance;
 
-    return $DB->update_record('googlemeet', $moduleinstance);
+    googlemeet_set_events($googlemeet);
+
+    return $DB->update_record('googlemeet', $googlemeet);
 }
 
 /**
@@ -94,14 +111,16 @@ function googlemeet_update_instance($moduleinstance, $mform = null) {
  * @param int $id Id of the module instance.
  * @return bool True if successful, false on failure.
  */
-function googlemeet_delete_instance($id)
-{
-    global $DB;
+function googlemeet_delete_instance($id) {
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
     $exists = $DB->get_record('googlemeet', array('id' => $id));
     if (!$exists) {
         return false;
     }
+
+    googlemeet_delete_events($id);
 
     $DB->delete_records('googlemeet', array('id' => $id));
 
@@ -118,8 +137,7 @@ function googlemeet_delete_instance($id)
  * @param object $coursemodule
  * @return cached_cm_info info
  */
-function googlemeet_get_coursemodule_info($coursemodule)
-{
+function googlemeet_get_coursemodule_info($coursemodule) {
     global $CFG, $DB;
 
     if (!$googlemeet = $DB->get_record(
@@ -153,8 +171,7 @@ function googlemeet_get_coursemodule_info($coursemodule)
  * @param  stdClass $context    context object
  * @since Moodle 3.0
  */
-function googlemeet_view($googlemeet, $course, $cm, $context)
-{
+function googlemeet_view($googlemeet, $course, $cm, $context) {
 
     // Trigger course_module_viewed event.
     $params = array(

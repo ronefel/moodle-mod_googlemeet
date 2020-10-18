@@ -33,25 +33,23 @@ require_once($CFG->dirroot . '/course/moodleform_mod.php');
  * @copyright  2020 Rone Santos <ronefel@hotmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_googlemeet_mod_form extends moodleform_mod
-{
+class mod_googlemeet_mod_form extends moodleform_mod {
     /** @var array options to be used with date_time_selector fields in the quiz. */
     public static $datefieldoptions = array('optional' => true);
 
     /**
      * Defines forms elements
      */
-    public function definition()
-    {
+    public function definition() {
         global $CFG, $PAGE, $COURSE;
 
         // Prevent JS caching
-        $CFG->cachejs = false;
+        // $CFG->cachejs = false;
 
         $config = get_config('googlemeet');
 
         // Get the current data for the form and destructuring of object
-        extract(get_object_vars($this->get_current()));
+        // extract(get_object_vars($this->get_current()));
 
         $mform = $this->_form;
 
@@ -78,74 +76,67 @@ class mod_googlemeet_mod_form extends moodleform_mod
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        if(!$url){
-            $mform->addElement('text', 'url', get_string('url', 'googlemeet'), array('size' => '34'));
-            $mform->setType('url', PARAM_URL);
-            $mform->addRule('url', null, 'required', null, 'client');
-            $mform->addHelpButton('url', 'url', 'googlemeet');
-        }else{
-            $mform->addElement('static', 'url', get_string('url', 'googlemeet'), array('size' => '34'));
-        }
+        $mform->addElement('text', 'url', get_string('url', 'googlemeet'), array('size' => '34'));
+        $mform->setType('url', PARAM_URL);
+        $mform->addRule('url', null, 'required', null, 'client');
+        $mform->addHelpButton('url', 'url', 'googlemeet');
 
         $this->standard_intro_elements();
         $element = $mform->getElement('introeditor');
         $attributes = $element->getAttributes();
         $attributes['rows'] = 5;
         $element->setAttributes($attributes);
-        if(!$url){
-            $mform->addHelpButton('introeditor', 'introeditor', 'googlemeet');
-        }
 
-        // -------------------------------------------------------------------------------
-        if(!$url){
+        // Open and close dates of event in Calendar.
+        $mform->addElement('header', 'eventduration', get_string('eventduration', 'googlemeet'));
+        $mform->addElement(
+            'date_time_selector',
+            'timeopen',
+            get_string('googlemeetopen', 'googlemeet'),
+            self::$datefieldoptions
+        );
+        $mform->addHelpButton('timeopen', 'googlemeetopenclose', 'googlemeet');
+        $mform->addElement(
+            'date_time_selector',
+            'timeclose',
+            get_string('googlemeetclose', 'googlemeet'),
+            self::$datefieldoptions
+        );
+        $mform->disabledIf('timeclose', 'timeopen[enabled]');
+
+        if ($config->clientid && $config->apikey) {
             $mform->addElement('header', 'generateurl', get_string('generateurlautomatically', 'googlemeet'));
 
             $generateurlgroup = [
-                $mform->createElement('html', '<pre id="googlemeetcontent">'.
-                        get_string('instructions', 'googlemeet').
-                        '<details id="googlemeetlog"><summary><b>Logs</b></summary>
+                $mform->createElement('html', '<pre id="googlemeetcontent">' .
+                    get_string('instructions', 'googlemeet') .
+                    '<details id="googlemeetlog"><summary><b>Logs</b></summary>
                             <section><p id="googlemeetcontentlog"></p></section>
                         </details>
                     </pre>'),
-
-                // Open and close dates of event in Calendar.
-                $mform->createElement(
-                    'date_time_selector',
-                    'timeopen',
-                    get_string('googlemeetopen', 'googlemeet'),
-                    self::$datefieldoptions
-                ),
-                // $mform->addHelpButton('timeopen', 'googlemeetopenclose', 'googlemeet'),
-
-                $mform->createElement(
-                    'date_time_selector',
-                    'timeclose',
-                    get_string('googlemeetclose', 'googlemeet'),
-                    self::$datefieldoptions
-                ),
 
                 $mform->createElement('button', 'generateLink', get_string('googlemeetgeneratelink', 'googlemeet')),
             ];
 
             $mform->addGroup($generateurlgroup, 'generateurlgroup', '', ' ', false);
+            
+            $PAGE->requires->js(new moodle_url('https://apis.google.com/js/api.js'));
+            $PAGE->requires->js_call_amd('mod_googlemeet/client', 'init', [
+                $config->clientid,
+                $config->apikey,
+                $config->scopes,
+            ]);
         }
+
 
         // Add standard elements.
         $this->standard_coursemodule_elements();
 
         // Add standard buttons.
         $this->add_action_buttons();
-
-        $PAGE->requires->js(new moodle_url('https://apis.google.com/js/api.js'));
-        $PAGE->requires->js_call_amd('mod_googlemeet/client', 'init', [
-            $config->clientid,
-            $config->apikey,
-            $config->scopes,
-        ]);
     }
 
-    public function validation($data, $files)
-    {
+    public function validation($data, $files) {
         global $CFG;
         $errors = array();
 
@@ -157,13 +148,11 @@ class mod_googlemeet_mod_form extends moodleform_mod
         return $errors;
     }
 
-    public function takeAccents($string)
-    {
+    public function takeAccents($string) {
         return preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $string);
     }
 
-    public function getUserTimeZoneOffset()
-    {
+    public function getUserTimeZoneOffset() {
         $tz = new DateTimeZone($this->takeAccents(usertimezone()));
         $dateTimeUtc = new DateTime("now", new DateTimeZone("UTC"));
         $seconds = timezone_offset_get($tz, $dateTimeUtc);

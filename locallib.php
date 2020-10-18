@@ -37,7 +37,7 @@ require_once("$CFG->dirroot/mod/googlemeet/lib.php");
 function googlemeet_print_header($googlemeet, $cm, $course) {
     global $PAGE, $OUTPUT;
 
-    $PAGE->set_title($course->shortname.': '.$googlemeet->name);
+    $PAGE->set_title($course->shortname . ': ' . $googlemeet->name);
     $PAGE->set_heading($course->fullname);
     $PAGE->set_activity_record($googlemeet);
     echo $OUTPUT->header();
@@ -64,7 +64,7 @@ function googlemeet_print_heading($googlemeet, $cm, $course, $notused = false) {
  * @param bool $ignoresettings print even if not specified in modedit
  * @return void
  */
-function googlemeet_print_intro($googlemeet, $cm, $course, $ignoresettings=false) {
+function googlemeet_print_intro($googlemeet, $cm, $course, $ignoresettings = false) {
     global $OUTPUT;
 
     $options = empty($googlemeet->displayoptions) ? array() : unserialize($googlemeet->displayoptions);
@@ -97,4 +97,49 @@ function googlemeet_print_workaround($googlemeet, $cm, $course) {
 
     echo $OUTPUT->footer();
     die;
+}
+
+/**
+ * This excludes all Google Meet events.
+ * @param int $googlemeetid
+ * @return void
+ */
+
+function googlemeet_delete_events($googlemeetid) {
+    global $DB;
+    if ($events = $DB->get_records('event', array('modulename' => 'googlemeet', 'instance' => $googlemeetid))) {
+        foreach ($events as $event) {
+            $event = calendar_event::load($event);
+            $event->delete();
+        }
+    }
+}
+
+/**
+ * This creates new events given as timeopen and timeclose by $googlemeet.
+ * @param object $googlemeet
+ * @return void
+ */
+function googlemeet_set_events($googlemeet) {
+    // Adding the googlemeet to the eventtable.
+
+    googlemeet_delete_events($googlemeet->id);
+
+    $event = new stdClass;
+    $event->description = $googlemeet->intro;
+    $event->courseid = $googlemeet->course;
+    $event->groupid = 0;
+    $event->userid = 0;
+    $event->modulename = 'googlemeet';
+    $event->instance = $googlemeet->id;
+    $event->eventtype = 'open';
+    $event->timestart = $googlemeet->timeopen;
+    $event->visible = instance_is_visible('googlemeet', $googlemeet);
+    $event->timeduration = ($googlemeet->timeclose - $googlemeet->timeopen);
+
+    if ($googlemeet->timeopen && $googlemeet->timeclose) {
+        // Single event for the whole googlemeet.
+        $event->name = $googlemeet->name;
+        calendar_event::create($event);
+    }
 }
