@@ -140,9 +140,11 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         global $CFG;
         $errors = array();
 
+        $url = explode('?', $data['url'])[0];
+
         $pattern = "/^https:\/\/meet.google.com\/[-a-zA-Z0-9@:%._\+~#=]{3}-[-a-zA-Z0-9@:%._\+~#=]{4}-[-a-zA-Z0-9@:%._\+~#=]{3}$/";
-        if (!preg_match($pattern, $data['url']) && $data['update'] === 0) {
-            $errors['urlGroup'] = get_string('url_failed', 'googlemeet');
+        if (!preg_match($pattern, $url)) {
+            $errors['url'] = get_string('url_failed', 'googlemeet');
         }
 
         return $errors;

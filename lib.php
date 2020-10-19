@@ -71,6 +71,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
+    $googlemeet->url = explode('?', $googlemeet->url)[0];
     $googlemeet->timecreated = time();
     $googlemeet->timemodified = time();
 
@@ -97,8 +98,9 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    $googlemeet->timemodified = time();
     $googlemeet->id = $googlemeet->instance;
+    $googlemeet->url = explode('?', $googlemeet->url)[0];
+    $googlemeet->timemodified = time();
 
     googlemeet_set_events($googlemeet);
 
