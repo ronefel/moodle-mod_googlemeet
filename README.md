@@ -25,5 +25,5 @@ If you discover any security related issues, please email [ronefel@hotmail.com](
 
 The GNU GENERAL PUBLIC LICENSE. Please see [License File](LICENSE) for more information.
 
-©2018 Google LLC All rights reserved.
-Google Meet and the Google Meet logo are registered trademarks of Google LLC.
+> ©2018 Google LLC All rights reserved.<br/>
+> Google Meet and the Google Meet logo are registered trademarks of Google LLC.
