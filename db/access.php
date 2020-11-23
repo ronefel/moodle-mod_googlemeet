@@ -30,14 +30,15 @@ $capabilities = [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
+            'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'student' => CAP_ALLOW,
             'guest' => CAP_ALLOW,
-            'user' => CAP_ALLOW,
         ],
     ],
 
     'mod/googlemeet:addinstance' => [
-        'riskbitmask' => RISK_XSS,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -45,5 +46,32 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
+    ],
+
+    'mod/googlemeet:syncgoogledrive' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ]
+    ],
+
+    'mod/googlemeet:editrecording' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ]
+    ],
+
+    'mod/googlemeet:removerecording' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ]
     ],
 ];

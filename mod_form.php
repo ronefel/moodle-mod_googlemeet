@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
 /**
  * Module instance settings form.
@@ -41,31 +42,17 @@ class mod_googlemeet_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG, $PAGE, $COURSE;
-
-        // Prevent JS caching
-        // $CFG->cachejs = false;
+        global $CFG, $PAGE, $USER;
 
         $config = get_config('googlemeet');
-
-        // Get the current data for the form and destructuring of object
-        // extract(get_object_vars($this->get_current()));
 
         $mform = $this->_form;
 
         // Adding the "general" fieldset, where all the common settings are shown.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('hidden', 'timezone');
-        $mform->setType('timezone', PARAM_RAW);
-        $mform->setDefault('timezone', $this->takeAccents(usertimezone()));
-
-        $mform->addElement('hidden', 'timezoneoffset');
-        $mform->setType('timezoneoffset', PARAM_RAW);
-        $mform->setDefault('timezoneoffset', $this->getUserTimeZoneOffset());
-
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('googlemeetname', 'googlemeet'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('roomname', 'googlemeet'), array('size' => '50'));
 
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
@@ -76,58 +63,149 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
-        $mform->addElement('text', 'url', get_string('url', 'googlemeet'), array('size' => '34'));
-        $mform->setType('url', PARAM_URL);
-        $mform->addRule('url', null, 'required', null, 'client');
-        $mform->addHelpButton('url', 'url', 'googlemeet');
-
         $this->standard_intro_elements();
         $element = $mform->getElement('introeditor');
         $attributes = $element->getAttributes();
         $attributes['rows'] = 5;
         $element->setAttributes($attributes);
 
-        // Open and close dates of event in Calendar.
-        $mform->addElement('header', 'eventduration', get_string('eventduration', 'googlemeet'));
-        $mform->addElement(
-            'date_time_selector',
-            'timeopen',
-            get_string('googlemeetopen', 'googlemeet'),
-            self::$datefieldoptions
-        );
-        $mform->addHelpButton('timeopen', 'googlemeetopenclose', 'googlemeet');
-        $mform->addElement(
-            'date_time_selector',
-            'timeclose',
-            get_string('googlemeetclose', 'googlemeet'),
-            self::$datefieldoptions
-        );
-        $mform->disabledIf('timeclose', 'timeopen[enabled]');
-
-        if ($config->clientid && $config->apikey) {
-            $mform->addElement('header', 'generateurl', get_string('generateurlautomatically', 'googlemeet'));
-
-            $generateurlgroup = [
-                $mform->createElement('html', '<pre id="googlemeetcontent">' .
-                    get_string('instructions', 'googlemeet') .
-                    '<details id="googlemeetlog"><summary><b>Logs</b></summary>
-                            <section><p id="googlemeetcontentlog"></p></section>
-                        </details>
-                    </pre>'),
-
-                $mform->createElement('button', 'generateLink', get_string('googlemeetgeneratelink', 'googlemeet')),
-            ];
-
-            $mform->addGroup($generateurlgroup, 'generateurlgroup', '', ' ', false);
-            
-            $PAGE->requires->js(new moodle_url('https://apis.google.com/js/api.js'));
-            $PAGE->requires->js_call_amd('mod_googlemeet/client', 'init', [
-                $config->clientid,
-                $config->apikey,
-                $config->scopes,
-            ]);
+        $hours = [];
+        $minutes = [];
+        for ($i = 0; $i <= 23; $i++) {
+            $hours[$i] = sprintf("%02d", $i);
+        }
+        for ($i = 0; $i < 60; $i++) {
+            $minutes[$i] = sprintf("%02d", $i);
         }
 
+        $eventtime = [
+            $mform->createElement('date_selector', 'eventdate', ''),
+            $mform->createElement('html', '<div style="width: 100%;"></div>'),
+            $mform->createElement('html', '<div class="items-center">' . get_string('from', 'googlemeet') . '</div>'),
+            $mform->createElement('select', 'starthour', get_string('hour', 'form'), $hours, false, true),
+            $mform->createElement('select', 'startminute', get_string('minute', 'form'), $minutes, false, true),
+            $mform->createElement('html', '<div class="items-center">' . get_string('to', 'googlemeet') . '</div>'),
+            $mform->createElement('select', 'endhour', get_string('hour', 'form'), $hours, false, true),
+            $mform->createElement('select', 'endminute', get_string('minute', 'form'), $minutes, false, true),
+            $mform->createElement('html', '<div id="id_googlemeet_eventtime_error" class="form-control-feedback invalid-feedback"></div>'),
+        ];
+        $mform->addGroup($eventtime, 'eventtime', get_string('eventdate', 'googlemeet'), [''], false);
+
+        // For multiple dates
+        $mform->addElement('header', 'headeraddmultipleeventdates', get_string('recurrenceeventdate', 'googlemeet'));
+        if (!empty($config->multieventdateexpanded) || $this->current->addmultiply) {
+            $mform->setExpanded('headeraddmultipleeventdates');
+        }
+
+        $mform->addElement('checkbox', 'addmultiply', '', get_string('repeatasfollows', 'googlemeet'));
+        $mform->addHelpButton('addmultiply', 'recurrenceeventdate', 'googlemeet');
+
+        $days = [
+            $mform->createElement('checkbox', 'Mon', '', get_string('monday', 'calendar')),
+            $mform->createElement('checkbox', 'Tue', '', get_string('tuesday', 'calendar')),
+            $mform->createElement('checkbox', 'Wed', '', get_string('wednesday', 'calendar')),
+            $mform->createElement('checkbox', 'Thu', '', get_string('thursday', 'calendar')),
+            $mform->createElement('checkbox', 'Fri', '', get_string('friday', 'calendar')),
+            $mform->createElement('checkbox', 'Sat', '', get_string('saturday', 'calendar')),            
+        ];
+
+        if ($CFG->calendar_startwday === '0') { // Week start from sunday.
+            array_unshift($days, $mform->createElement('checkbox', 'Sun', '', get_string('sunday', 'calendar')));
+        } else {
+            array_push($days, $mform->createElement('checkbox', 'Sun', '', get_string('sunday', 'calendar')));
+        }
+
+        array_push($days, $mform->createElement('html', '<div id="id_googlemeet_days_error" class="form-control-feedback invalid-feedback"></div>'));
+
+        $mform->addGroup($days, 'days', get_string('repeaton', 'googlemeet'), ['&nbsp;&nbsp;&nbsp;']);
+        $mform->disabledIf('days', 'addmultiply', 'notchecked');
+
+        $period = array(
+            1 => 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36
+        );
+        $periodgroup = [
+            $mform->createElement('select', 'period', '', $period, false, true),
+            $mform->createElement('html', '<div class="items-center">' . get_string('week', 'googlemeet') . '</div>'),
+            $mform->createElement('html', '<div id="id_googlemeet_periodgroup_error" class="form-control-feedback invalid-feedback"></div>'),
+        ];
+        $mform->addGroup($periodgroup, 'periodgroup', get_string('repeatevery', 'googlemeet'), [''], false);
+        $mform->disabledIf('periodgroup', 'addmultiply', 'notchecked');
+
+        $eventenddategroup = [
+            $mform->createElement('date_selector', 'eventenddate', ''),
+            $mform->createElement('html', '<div id="id_googlemeet_eventenddategroup_error" class="form-control-feedback invalid-feedback"></div>'),
+        ];        
+        $mform->addGroup($eventenddategroup, 'eventenddategroup', get_string('repeatuntil', 'googlemeet'), [''], false);
+        $mform->disabledIf('eventenddategroup', 'addmultiply', 'notchecked');
+
+        $mform->addElement('header', 'headerroomurl', get_string('roomurl', 'googlemeet'));
+        if (!empty($config->roomurlexpanded)) {
+            $mform->setExpanded('headerroomurl');
+        }
+
+        if ($config->clientid && $config->apikey) {
+            if (empty($this->current->instance)) {
+                $generateurlgroup = [
+                    $mform->createElement('text', 'url_viewer', '', ['size' => '30', 'readonly' => true]),
+
+                    $mform->createElement(
+                        'button',
+                        'generateurlroom',
+                        get_string('generateurlroom', 'googlemeet'),
+                        ['disabled' => true]
+                    ),
+                    $mform->createElement('html', '<span id="generateurlroomLoading"></span>'),
+
+                    $mform->createElement('html', '<div style="width: 100%;">
+                        <pre id="googlemeetcontentlog"></pre>
+                    </div>'),
+
+                    $mform->createElement('hidden', 'url', null, ['id' => 'id_url']),
+                    $mform->createElement('hidden', 'originalname', null, ['id' => 'id_originalname']),
+                    $mform->createElement('hidden', 'creatoremail', null, ['id' => 'id_creatoremail']),
+                    $mform->createElement('html', '<div id="id_googlemeet_generateurlgroup_error" class="form-control-feedback invalid-feedback"></div>'),
+                ];
+
+                $mform->addGroup($generateurlgroup, 'generateurlgroup', get_string('roomurl', 'googlemeet'), [' '], false);
+
+                $mform->setType('url_viewer', PARAM_URL);
+                $mform->setType('url', PARAM_URL);
+                $mform->setType('originalname', PARAM_TEXT);
+                $mform->setType('creatoremail', PARAM_EMAIL);
+
+                $PAGE->requires->js_call_amd('mod_googlemeet/mod_form', 'init', [
+                    $config->clientid,
+                    $config->apikey,
+                    get_user_timezone($USER->timezone)
+                ]);
+            } else {
+                $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
+                $mform->setType('url_viewer', PARAM_URL);
+                $mform->setDefault('url_viewer', $this->current->url);
+            }
+        } else {
+            $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), array('size' => '50'));
+            $mform->setType('url', PARAM_URL);
+            $mform->addRule('url', null, 'required', null, 'client');
+        }
+
+        $mform->addElement('header', 'headernotification', get_string('notification', 'googlemeet'));
+        if (!empty($config->notificationexpanded)) {
+            $mform->setExpanded('headernotification');
+        }
+
+        $mform->addElement('checkbox', 'notify', '', get_string('notify', 'googlemeet'));
+        $mform->setDefault('notify', $config->notify);
+        $mform->addHelpButton('notify', 'notify', 'googlemeet');
+
+        $minutes = [];
+        for ($i = 0; $i <= 120; $i = $i + 5) {
+            $minutes[$i] = $i;
+        }
+        $minutesbefore = $mform->addElement('select', 'minutesbefore', get_string('minutesbefore', 'googlemeet'), $minutes, false, true);
+        $minutesbefore->setSelected($config->minutesbefore);
+        $mform->addHelpButton('minutesbefore', 'minutesbefore', 'googlemeet');
 
         // Add standard elements.
         $this->standard_coursemodule_elements();
@@ -136,36 +214,101 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+
+    function data_preprocessing(&$default_values) {
+        if ($this->current->instance) {
+            $default_values['days'] = (array) json_decode($default_values['days']);
+        }
+    }
+
     public function validation($data, $files) {
-        global $CFG;
-        $errors = array();
+        global $COURSE;
 
-        $url = explode('?', $data['url'])[0];
+        $errors = parent::validation($data, $files);
 
-        $pattern = "/^https:\/\/meet.google.com\/[-a-zA-Z0-9@:%._\+~#=]{3}-[-a-zA-Z0-9@:%._\+~#=]{4}-[-a-zA-Z0-9@:%._\+~#=]{3}$/";
-        if (!preg_match($pattern, $url)) {
-            $errors['url'] = get_string('url_failed', 'googlemeet');
+        $starttime = $data['starthour'] * HOURSECS + $data['startminute'] * MINSECS;
+        $endtime = $data['endhour'] * HOURSECS + $data['endminute'] * MINSECS;
+
+        if ($endtime < $starttime) {
+            $errors['eventtime'] = get_string('invalideventendtime', 'googlemeet');
+        }
+
+        if (
+            !empty($data['addmultiply']) &&
+            $data['eventdate'] !== 0 &&
+            $data['eventenddate'] !== 0 &&
+            $data['eventenddate'] < $data['eventdate']
+        ) {
+            $errors['eventenddate'] = get_string('invalideventenddate', 'googlemeet');
+        }
+
+        $addmulti = isset($data['addmultiply']) ? (int)$data['addmultiply'] : 0;
+
+        if ($addmulti && !$this->checkweekdays($data['eventdate'], $data['eventenddate'], $data['days'])) {
+            $errors['days'] = get_string('checkweekdays', 'googlemeet');
+        }
+
+        if ($addmulti && ceil(($data['eventenddate'] - $data['eventdate']) / YEARSECS) > 1) {
+            $errors['eventenddate'] = get_string('timeahead', 'googlemeet');
+        }
+
+        $startdate = $data['eventdate'] + $starttime;
+        if ($startdate < $COURSE->startdate) {
+            $errors['eventtime'] = get_string(
+                'earlierto',
+                'googlemeet',
+                userdate($COURSE->startdate, get_string('strftimedmyhm', 'googlemeet'))
+            );
+        }
+
+        if (!$this->current->instance) {
+            $url = googlemeet_clearUrl($data['url']);
+            if (!$url) {
+                $errors['generateurlgroup'] = get_string('url_failed', 'googlemeet');
+            }
         }
 
         return $errors;
     }
 
-    public function takeAccents($string) {
-        return preg_replace(array("/(á|à|ã|â|ä)/", "/(Á|À|Ã|Â|Ä)/", "/(é|è|ê|ë)/", "/(É|È|Ê|Ë)/", "/(í|ì|î|ï)/", "/(Í|Ì|Î|Ï)/", "/(ó|ò|õ|ô|ö)/", "/(Ó|Ò|Õ|Ô|Ö)/", "/(ú|ù|û|ü)/", "/(Ú|Ù|Û|Ü)/", "/(ñ)/", "/(Ñ)/"), explode(" ", "a A e E i I o O u U n N"), $string);
-    }
+    /**
+     * Check weekdays function.
+     * @param int $eventdate
+     * @param int $eventenddate
+     * @param array $days
+     * @return bool
+     */
+    private function checkweekdays($eventdate, $eventenddate, $days) {
+        $found = false;
 
-    public function getUserTimeZoneOffset() {
-        $tz = new DateTimeZone($this->takeAccents(usertimezone()));
-        $dateTimeUtc = new DateTime("now", new DateTimeZone("UTC"));
-        $seconds = timezone_offset_get($tz, $dateTimeUtc);
+        $daysofweek = [
+            0 => "Sun",
+            1 => "Mon",
+            2 => "Tue",
+            3 => "Wed",
+            4 => "Thu",
+            5 => "Fri",
+            6 => "Sat"
+        ];
 
-        $hours = '';
-        if ($seconds < 0) {
-            $hours = "-" . gmdate("Hi", -$seconds);
-        } else {
-            $hours = "+" . gmdate("Hi", $seconds);
+        $start = new DateTime(date("Y-m-d", $eventdate));
+        $interval = new DateInterval('P1D');
+        $end = new DateTime(date("Y-m-d", $eventenddate));
+        $end->add(new DateInterval('P1D'));
+
+        $period = new DatePeriod($start, $interval, $end);
+        foreach ($period as $date) {
+            if (!$found) {
+                foreach ($days as $day => $value) {
+                    $key = array_search($day, $daysofweek);
+                    if ($date->format("w") == $key) {
+                        $found = true;
+                        break;
+                    }
+                }
+            }
         }
 
-        return $hours;
+        return $found;
     }
 }

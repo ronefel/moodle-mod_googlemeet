@@ -25,60 +25,110 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Google Meet';
-$string['modulename'] = 'Google Meet';
-$string['modulenameplural'] = 'Google Meet instances';
-$string['modulename_help'] = 'The Google Meet module allows a teacher to create a meeting room as a course resource.';
-
-$string['googlemeetname'] = 'Room name';
-
-$string['generateurlautomatically'] = 'Generate Room URL automatically';
-
-$string['url'] = 'Room url';
-$string['url_help'] = 'You can manually enter the URL of the Google Meet room in the following format: https://meet.google.com/aaa-aaaa-aaa <br/> or you can generate the URL automatically in the section below "<strong>'.$string['generateurlautomatically'].'</strong>".';
-$string['url_failed'] = 'Enter a valid Google Meet url with the following format: https://meet.google.com/aaa-aaaa-aaa';
-
-$string['introeditor'] = 'Description';
-$string['introeditor_help'] = 'This description will also be saved in the calendar event if the URL is automatically generated in the section below "<strong>'.$string['generateurlautomatically'].'</strong>".';
-
-$string['instructions'] = '<details>
-<summary><b>Instructions</b></summary>
-<section>
-<ol>
-<li>It is mandatory to enter the name of the room in the "Room name" field above.</li>
-<li>The "Description" field will also be used as a description in the Agenda event (optional).</li>
-<li>The date fields below are optional, they serve to inform the start and end date of the event in the Agenda.</li>
-<li>Clicking on the "Generate room url" button will open a window where you must select your institutional account or log in if you are not logged in. If you select an account that is not institutional it will show an error and it will not be possible to continue.</li>
-<li>On the next screen, you should give permission to "View and edit events on all your Calendars".</li>
-<li>With the account selected and the permission granted, an event in the Calendar will automatically be created with a link from the Google Meet conference room. The "Room url" field above will be automatically populated with this link.</li>
-<li>Click on the "Save and return to course" button.</li>
-</ol>
-</section>
-</details>';
-$string['googlemeetgeneratelink'] = 'Generate room url';
-$string['eventduration'] = 'Event duration';
-$string['googlemeetopen'] = 'Event start date';
-$string['googlemeetclose'] = 'End date of the event';
-$string['googlemeetopenclose'] = 'Start date and end date of the event';
-$string['googlemeetopenclose_help'] = 'If disabled, it will generate the event in the calendar for today.';
-
-$string['warning'] = 'Warning';
-$string['warningtext'] = 'The GoogleMeet Resource cannot be edited. Delete this and create a new one.';
-
-$string['pluginadministration'] = 'GoogleMeet module administration';
-
-$string['clicktoopen'] = 'Click {$a} link to open resource.';
-
-$string['clientid'] = 'Client ID';
-$string['configclientid'] = 'Client ID from the Developer Console';
+$string['recurrenceeventdate'] = 'Recurrence of the event date';
+$string['recurrenceeventdate_help'] = 'This function makes it possible to create multiple recurrences from the event date.
+<br>* <strong>Repeat on</strong>: Select the days of the week that your class will meet (for example, Monday / Wednesday / Friday).
+<br>* <strong>Repeat every</strong>: This allows for a frequency setting. If your class will meet every week, select 1; will meet every two weeks, select 2; every 3 weeks, select 3, etc.
+<br>* <strong>Repeat until</strong>: Select the last day of the meeting (the last day you want to take the recurring date of the event).
+';
 $string['apikey'] = 'API key';
-$string['configapikey'] = 'API key from the Developer Console';
-$string['scopes'] = 'Scopes';
-$string['configscopes'] = 'Authorization scopes required by the API; multiple scopes can be included, separated by spaces.';
-
-$string['requiredfield'] = 'Enter a value.';
-$string['creatingcalendarevent'] = 'Creating event in the calendar...';
-$string['eventsuccessfullycreated'] = 'Account successfully created in account';
-$string['creatingconferenceroom'] = 'Creating conference room...';
-$string['conferencesuccessfullycreated'] = 'Conference room created successfully';
+$string['clientid'] = 'OAuth client ID';
+$string['clientid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID" target="_blank">How to create the API key and OAuth client ID</a>';
+$string['checkweekdays'] = 'Select the days of the week that fall within the selected date range.';
+$string['date'] = 'Date';
+$string['duration'] = 'Duration';
+$string['notify'] = 'Send notification to the student';
+$string['notify_help'] = 'If checked, a notification will be sent to the student about the start date of the event.';
+$string['emailcontent'] = 'Email content';
+$string['emailcontent_default'] = '<p>Hi %userfirstname%,</p>
+<p>This reminder is to remind you that there will be a Google meet event in %coursename%</p>
+<p><b>%googlemeetname%</b></p>
+<p>When: %eventdate% %duration% %timezone%</p>
+<p>Access link: %url%</p>';
+$string['emailcontent_help'] = 'When a notification is sent to a student, it takes the email content from this field. The following wildcards can be used:
+<ul>
+<li>%userfirstname%</li>
+<li>%userlastname%</li>
+<li>%coursename%</li>
+<li>%googlemeetname%</li>
+<li>%eventdate%</li>
+<li>%duration%</li>
+<li>%timezone%</li>
+<li>%url%</li>
+<li>%cmid%</li>
+</ul>';
+$string['entertheroom'] = 'Enter the room';
+$string['eventdate'] = 'Event date';
+$string['from'] = 'from';
+$string['generateurlroom'] = 'Generate Room URL';
+$string['googlemeet:addinstance'] = 'Add a new google meet™ for Moodle';
+$string['googlemeet:editrecording'] = 'Edit recordings';
+$string['googlemeet:removerecording'] = 'Remove recordings';
+$string['googlemeet:syncgoogledrive'] = 'Sync with google drive';
+$string['googlemeet:view'] = 'View google meet™ for Moodle content';
+$string['hide'] = 'Hide';
+$string['invalideventenddate'] = 'This date can not be earlier than the "Event date"';
+$string['invalideventendtime'] = 'The end time must be greater than start time';
 $string['invalidstoredurl'] = 'Cannot display this resource, Google Meet URL is invalid.';
+$string['jstableinfo'] = 'Showing {start} to {end} of {rows} recordings';
+$string['jstableinfofiltered'] = 'Showing {start} to {end} of {rows} recordings (filtered from {rowsTotal} recordings)';
+$string['jstableloading'] = 'Loading...';
+$string['jstablenorows'] = 'No recording found';
+$string['jstablesearch'] = 'Search...';
+$string['jstableperpage'] = '{select} recordings per page';
+$string['lastsync'] = 'Last sync:';
+$string['loading'] = 'Loading';
+$string['messageprovider:notification'] = 'Google Meet event start reminder';
+$string['minutesbefore'] = 'Minutes before';
+$string['minutesbefore_help'] = 'Number of minutes before the start of the event when the notification should be send.';
+$string['modulename'] = 'Google Meet™ for Moodle';
+$string['modulename_help'] = 'The Google Meet™ for Moodle module allows a teacher to create a meeting room as a course resource.
+<p>©2018 Google LLC All rights reserved.<br/>
+Google Meet and the Google Meet logo are registered trademarks of Google LLC.</p>
+';
+$string['modulenameplural'] = 'Google Meet™ for Moodle instances';
+$string['multieventdateexpanded'] = 'Recurrence of the event date expanded';
+$string['multieventdateexpanded_desc'] = 'Show the "Recurrence of the event date" settings as expanded by default when creating new Room.';
+$string['name'] = 'Name';
+$string['never'] = 'Never';
+$string['notfoundrecordingname'] = 'No recording found with the name';
+$string['notfoundrecordingsfolder'] = 'The "Meet Recordings" folder was not found in Google Drive.';
+$string['notification'] = 'Notification';
+$string['notificationexpanded'] = 'Notification expanded';
+$string['notifycationexpanded_desc'] = 'Show the "Notification" settings as expanded by default when creating new Room.';
+$string['notifytask'] = 'Google Meet™ for Moodle notification task';
+$string['notpossiblesync'] = 'Is not possible to synchronize with an account other than the one that created the room.';
+$string['or'] = 'or';
+$string['play'] = 'Play';
+$string['pluginadministration'] = 'Google Meet™ for Moodle administration';
+$string['pluginname'] = 'Google Meet™ for Moodle';
+$string['privacy:metadata'] = 'The Google Meet™ for Moodle resource plugin does not store any personal data.';
+$string['earlierto'] = 'The event date cannot be earlier than the course start date ({$a}).';
+$string['recording'] = 'Recording';
+$string['recordings'] = 'Recordings';
+$string['recordingswiththename'] = 'Recordings with the name:';
+$string['repeatasfollows'] = 'Repeat the event date above as follows';
+$string['repeatevery'] = 'Repeat every';
+$string['repeaton'] = 'Repeat on';
+$string['repeatuntil'] = 'Repeat until';
+$string['requirednamefield'] = 'Enter the name of the room to create automatically.';
+$string['roomcreator'] = 'Room creator:';
+$string['roomname'] = 'Room name';
+$string['roomurl'] = 'Room url';
+$string['roomurlexpanded'] = 'Room url expanded';
+$string['roomurlexpanded_desc'] = 'Show the "Room url" settings as expanded by default when creating new Room.';
+$string['show'] = 'Show';
+$string['strftimedm'] = '%a. %d %b.';
+$string['strftimedmy'] = '%a. %d %b. %Y';
+$string['strftimedmyhm'] = '%a. %d %b. %Y %H:%M';
+$string['strftimehm'] = '%H:%M';
+$string['syncwithgoogledrive'] = 'Sync with Google Drive';
+$string['thereisnorecordingtoshow'] = 'There is no recording to show.';
+$string['timeahead'] = 'Is not possible to create multiple recurrences of the event date that exceed one year, adjust the start and end dates.';
+$string['timedate'] = '%d/%m/%Y %H:%M';
+$string['to'] = 'to';
+$string['today'] = 'Today';
+$string['upcomingevents'] = 'Upcoming events';
+$string['url_failed'] = 'A valid Google Meet URL is required';
+$string['visible'] = 'Visible';
+$string['week'] = 'Week(s)';

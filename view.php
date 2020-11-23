@@ -27,9 +27,9 @@ require_once(__DIR__ . '/lib.php');
 require_once(__DIR__ . '/locallib.php');
 // require_once($CFG->libdir . '/completionlib.php');
 
-$id         = optional_param('id', 0, PARAM_INT);
-$redirect   = optional_param('redirect', 0, PARAM_BOOL);
-$forceview  = optional_param('forceview', 0, PARAM_BOOL);
+$config = get_config('googlemeet');
+
+$id = optional_param('id', 0, PARAM_INT);
 
 if ($id) {
     $cm             = get_coursemodule_from_id('googlemeet', $id, 0, false, MUST_EXIST);
@@ -58,7 +58,7 @@ if (!preg_match($pattern, $url)) {
     googlemeet_print_header($googlemeet, $cm, $course);
     googlemeet_print_heading($googlemeet, $cm, $course);
     googlemeet_print_intro($googlemeet, $cm, $course);
-    notice(get_string('invalidstoredurl', 'googlemeet'), new moodle_url('/course/view.php', array('id'=>$cm->course)));
+    notice(get_string('invalidstoredurl', 'googlemeet'), new moodle_url('/course/view.php', array('id' => $cm->course)));
     die;
 }
 unset($url);
@@ -66,8 +66,23 @@ unset($url);
 // Completion and trigger events.
 googlemeet_view($googlemeet, $course, $cm, $context);
 
-if ($redirect && !$forceview) {
-    redirect($googlemeet->url);
-}
+googlemeet_print_header($googlemeet, $cm, $course);
+googlemeet_print_heading($googlemeet, $cm, $course, true);
+googlemeet_print_intro($googlemeet, $cm, $course, true);
 
-googlemeet_print_workaround($googlemeet, $cm, $course);
+echo '<a 
+        href="' . $googlemeet->url . '"
+        class="btn btn-primary"
+        id="id_enterroom"
+        onclick="this.target=\'_blank\';"
+      >'
+    . get_string('entertheroom', 'googlemeet') .
+    '</a>';
+
+googlemeet_get_upcoming_events($googlemeet->id);
+
+googlemeet_print_recordings($googlemeet, $cm, $context);
+
+$events = googlemeet_get_future_events();
+
+echo $OUTPUT->footer();

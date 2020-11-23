@@ -36,25 +36,5 @@ function xmldb_googlemeet_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2020101700) {
-        $table = new xmldb_table('googlemeet');
-
-        // Define field timeopen to be added to googlemeet.
-        $field = new xmldb_field('timeopen', XMLDB_TYPE_INTEGER, '10', null, true, null, '0', 'introformat');
-        // Conditionally launch add field columns.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field timeopen to be added to googlemeet.
-        $field = new xmldb_field('timeclose', XMLDB_TYPE_INTEGER, '10', null, true, null, '0', 'timeopen');
-        // Conditionally launch add field columns.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // googlemeet savepoint reached.
-        upgrade_mod_savepoint(true, 2020101700, 'googlemeet');
-    }
     return true;
 }

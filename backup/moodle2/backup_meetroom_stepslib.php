@@ -43,27 +43,65 @@ class backup_googlemeet_activity_structure_step extends backup_activity_structur
         $userinfo = $this->get_setting_value('userinfo');
 
         // Replace with the attributes and final elements that the element will handle.
-        $attributes = ['id'];
-        $final_elements = [
+        $googlemeet = new backup_nested_element('googlemeet', ['id'], [
             'name',
+            'originalname',
+            'url',
+            'creatoremail',
             'intro',
             'introformat',
-            'url',
-            'timecreated',
+            'lastsync',
+            'eventdate',
+            'starthour',
+            'startminute',
+            'endhour',
+            'endminute',
+            'addmultiply',
+            'days',
+            'period',
+            'eventenddate',
+            'notify',
+            'minutesbefore',
             'timemodified'
-        ];
-        $root = new backup_nested_element('googlemeet', $attributes, $final_elements);
+        ]);
 
-        // Build the tree with these elements with $root as the root of the backup tree.
+        $events = new backup_nested_element('events');
+        $event = new backup_nested_element('event', ['id'], [
+            'eventdate',
+            'duration',
+            'timemodified'
+        ]);
+
+        $recordings = new backup_nested_element('recordings');
+        $recording = new backup_nested_element('recording', ['id'], [
+            'recordingid',
+            'name',
+            'createdtime',
+            'duration',
+            'webviewlink',
+            'visible',
+            'timemodified'
+        ]);
+
+        // Build the tree in the order needed for restore.
+        $googlemeet->add_child($events);
+        $events->add_child($event);
+
+        $googlemeet->add_child($recordings);
+        $recordings->add_child($recording);
 
         // Define the source tables for the elements.
-        $root->set_source_table('googlemeet', array('id' => backup::VAR_ACTIVITYID));
+        $googlemeet->set_source_table('googlemeet', ['id' => backup::VAR_ACTIVITYID]);
+
+        $event->set_source_table('googlemeet_events', ['googlemeetid' => backup::VAR_PARENTID]);
+
+        $recording->set_source_table('googlemeet_recordings', ['googlemeetid' => backup::VAR_PARENTID]);
 
         // Define id annotations.
 
         // Define file annotations.
-        $root->annotate_files('mod_googlemeet', 'intro', null); // This file area hasn't itemid
+        $googlemeet->annotate_files('mod_googlemeet', 'intro', null); // This file area hasn't itemid
 
-        return $this->prepare_activity_structure($root);
+        return $this->prepare_activity_structure($googlemeet);
     }
 }

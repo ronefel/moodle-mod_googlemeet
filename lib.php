@@ -50,7 +50,6 @@ function googlemeet_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return true;
-
         default:
             return null;
     }
@@ -71,15 +70,23 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    $googlemeet->url = explode('?', $googlemeet->url)[0];
-    $googlemeet->timecreated = time();
+    $googlemeet->days = json_encode($googlemeet->days);
+
+    $url = googlemeet_clearUrl($googlemeet->url);
+    if ($url) {
+        $googlemeet->url = $url;
+    }
+
     $googlemeet->timemodified = time();
 
     if (!$googlemeet->id = $DB->insert_record('googlemeet', $googlemeet)) {
         return false;
     }
 
-    googlemeet_set_events($googlemeet);
+    $googlemeet->days = json_decode($googlemeet->days);
+    $events = googlemeet_construct_events_data_for_add($googlemeet);
+
+    googlemeet_set_events($events);
 
     return $googlemeet->id;
 }
@@ -99,12 +106,24 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
     $googlemeet->id = $googlemeet->instance;
-    $googlemeet->url = explode('?', $googlemeet->url)[0];
+
+    $googlemeet->days = json_encode($googlemeet->days);
+
+    $url = googlemeet_clearUrl($googlemeet->url);
+    if ($url) {
+        $googlemeet->url = $url;
+    }
+
     $googlemeet->timemodified = time();
 
-    googlemeet_set_events($googlemeet);
+    $googlemeetUpdated = $DB->update_record('googlemeet', $googlemeet);
 
-    return $DB->update_record('googlemeet', $googlemeet);
+    $googlemeet->days = json_decode($googlemeet->days);
+    $events = googlemeet_construct_events_data_for_add($googlemeet);
+
+    googlemeet_set_events($events);
+
+    return $googlemeetUpdated;
 }
 
 /**
@@ -153,9 +172,6 @@ function googlemeet_get_coursemodule_info($coursemodule) {
     $info = new cached_cm_info();
     $info->name = $googlemeet->name;
 
-    $fullurl = "$CFG->wwwroot/mod/googlemeet/view.php?id=$coursemodule->id&amp;redirect=1";
-    $info->onclick = "window.open('$fullurl'); return false;";
-
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
         $info->content = format_module_intro('googlemeet', $googlemeet, $coursemodule->id, false);
@@ -167,7 +183,7 @@ function googlemeet_get_coursemodule_info($coursemodule) {
 /**
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
- * @param  stdClass $googlemeet        googlemeet object
+ * @param  stdClass $googlemeet googlemeet object
  * @param  stdClass $course     course object
  * @param  stdClass $cm         course module object
  * @param  stdClass $context    context object
@@ -190,4 +206,30 @@ function googlemeet_view($googlemeet, $course, $cm, $context) {
     // Completion.
     $completion = new completion_info($course);
     $completion->set_module_viewed($cm);
+}
+
+/**
+ * Returns a list of recordings from Google Meet
+ *
+ * @param int $id Id of googlemeet.
+ * @return stdClass $formattedrecordings    List of recordings
+ */
+function googlemeet_list_recordings($params) {
+    global $DB;
+
+    $recordings = $DB->get_records(
+        'googlemeet_recordings',
+        $params,
+        'createdtime DESC',
+        'id,googlemeetid,name,createdtime,duration,webviewlink,visible'
+    );
+
+    $formattedrecordings = [];
+    foreach ($recordings as $recording) {
+        $recording->createdtimeformatted = userdate($recording->createdtime);
+
+        array_push($formattedrecordings, $recording);
+    }
+
+    return $formattedrecordings;
 }

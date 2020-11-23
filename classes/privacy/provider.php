@@ -15,17 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Privacy Subsystem implementation for mod_googlemeet.
  *
  * @package     mod_googlemeet
  * @copyright   2020 Rone Santos <ronefel@hotmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_googlemeet\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_googlemeet';
-$plugin->release = '1.0.0';
-$plugin->version = 2020112300;
-$plugin->requires = 2019052000; // Moodle 3.7
-$plugin->maturity = MATURITY_STABLE;
+/**
+ * The mod_googlemeet module does not store any data.
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}

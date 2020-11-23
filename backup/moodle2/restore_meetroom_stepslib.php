@@ -41,7 +41,15 @@ class restore_googlemeet_activity_structure_step extends restore_activity_struct
      */
     protected function define_structure() {
         $paths = array();
+        $userinfo = $this->get_setting_value('userinfo');
+        
         $paths[] = new restore_path_element('googlemeet', '/activity/googlemeet');
+
+        $paths[] = new restore_path_element('googlemeet_event',
+            '/activity/googlemeet/events/event');
+
+        $paths[] = new restore_path_element('googlemeet_recording',
+            '/activity/googlemeet/recordings/recording');
 
         return $this->prepare_activity_structure($paths);
     }
@@ -55,11 +63,41 @@ class restore_googlemeet_activity_structure_step extends restore_activity_struct
 
         // Any changes to the list of dates that needs to be rolled should be same during course restore and course reset.
         // See MDL-9367.
+        $data->eventdate = $this->apply_date_offset($data->eventdate);
+        $data->eventenddate = $this->apply_date_offset($data->eventenddate);
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
 
         // insert the googlemeet record
         $newitemid = $DB->insert_record('googlemeet', $data);
         // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
+    }
+
+    protected function process_googlemeet_event($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->googlemeetid = $this->get_new_parentid('googlemeet');
+        $data->eventdate = $this->apply_date_offset($data->eventdate);
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
+
+        $newitemid = $DB->insert_record('googlemeet_events', $data);
+        $this->set_mapping('googlemeet_event', $oldid, $newitemid);
+    }
+
+    protected function process_googlemeet_recording($data) {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->googlemeetid = $this->get_new_parentid('googlemeet');
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
+
+        $newitemid = $DB->insert_record('googlemeet_recordings', $data);
+        $this->set_mapping('googlemeet_recording', $oldid, $newitemid);
     }
 
     /**

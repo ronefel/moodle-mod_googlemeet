@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Definition of Google Meet task.
  *
  * @package     mod_googlemeet
  * @copyright   2020 Rone Santos <ronefel@hotmail.com>
@@ -24,8 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'mod_googlemeet';
-$plugin->release = '1.0.0';
-$plugin->version = 2020112300;
-$plugin->requires = 2019052000; // Moodle 3.7
-$plugin->maturity = MATURITY_STABLE;
+$tasks = [
+    [
+        'classname' => 'mod_googlemeet\task\notify_event',
+        'blocking' => 0,
+        'minute' => '*/5',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ]
+];
