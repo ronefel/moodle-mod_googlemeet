@@ -5,6 +5,14 @@ The Google Meet™ for Moodle plugin allows the teacher, without having to leave
 To create the Google Meet meeting room from Moodle, the Google Meet™ for Moodle plugin needs the API key and the OAuth client ID of the Google APIs.
 To learn how to create the API key and OAuth client ID, click [here](https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID).
 
+<div>
+  <img src="https://nimbusweb.me/box/attachment/4899869/3tao4krsqtnw2lsn9td5/35we7Yh3oDFOYwbM/screen1.png" alt="screen1.png" width="190"/>
+  <img src="https://nimbusweb.me/box/attachment/4899882/edzpnbkotfg9tpri4849/6w30L8gILMgpgJof/screen2.png" alt="screen2.png" width="190"/>
+  <img src="https://nimbusweb.me/box/attachment/4899887/r0u8wmqtfqynog1q6hi5/mn5OI0IyLYDLFWNN/screen3.png" alt="screen3.png" width="190"/>
+  <img src="https://nimbusweb.me/box/attachment/4899889/bdh8i7ht2ox0qyd0mnwl/Au9pZ7p1LSDWuxWw/screen4.png" alt="screen4.png" width="190"/>
+  <img src="https://nimbusweb.me/box/attachment/4899895/mqk8qnl95h4hpmdnen7m/R53XBvcxwsFtzDWL/screen5.png" alt="screen5.png" width="190"/>
+</div>
+
 * Author: Rone Santos, [ronefel@hotmail.com](mailto:ronefel@hotmail.com)
 * Min. required: Moodle 3.7.x
 * Supports PHP: 7.x
