@@ -13,15 +13,18 @@ To learn how to create the API key and OAuth client ID, click [here](https://git
 <img src="https://nimbusweb.me/box/attachment/4899895/mqk8qnl95h4hpmdnen7m/R53XBvcxwsFtzDWL/screen5.png" alt="screen5.png" width="270"/>
 </div>
 
-* Author: Rone Santos, [ronefel@hotmail.com](mailto:ronefel@hotmail.com)
-* Min. required: Moodle 3.7.x
-* Supports PHP: 7.x
+## Requirements
+Moodle 3.7+
+
+PHP 7.0+
 
 ## Installation
 1.  Copy this plugin to the `mod\googlemeet` folder on the server
 2.  Login as administrator
 3.  Go to Site Administrator > Notification
 4.  Install the plugin
+
+This module is intended for Moodle 3.7 and above.
 
 ## Security
 
