@@ -93,7 +93,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
 
         // For multiple dates
         $mform->addElement('header', 'headeraddmultipleeventdates', get_string('recurrenceeventdate', 'googlemeet'));
-        if (!empty($config->multieventdateexpanded) || $this->current->addmultiply) {
+        if (!empty($config->multieventdateexpanded) || !empty($this->current->addmultiply)) {
             $mform->setExpanded('headeraddmultipleeventdates');
         }
 
@@ -233,8 +233,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $errors['eventtime'] = get_string('invalideventendtime', 'googlemeet');
         }
 
-        if (
-            !empty($data['addmultiply']) &&
+        if (!empty($data['addmultiply']) &&
             $data['eventdate'] !== 0 &&
             $data['eventenddate'] !== 0 &&
             $data['eventenddate'] < $data['eventdate']
@@ -265,6 +264,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $url = googlemeet_clearUrl($data['url']);
             if (!$url) {
                 $errors['generateurlgroup'] = get_string('url_failed', 'googlemeet');
+                $errors['url'] = get_string('url_failed', 'googlemeet');
             }
         }
 

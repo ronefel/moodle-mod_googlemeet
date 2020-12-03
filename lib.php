@@ -70,7 +70,9 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    $googlemeet->days = json_encode($googlemeet->days);
+    if(isset($googlemeet->days)) {
+        $googlemeet->days = json_encode($googlemeet->days);
+    }
 
     $url = googlemeet_clearUrl($googlemeet->url);
     if ($url) {
@@ -83,7 +85,9 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
         return false;
     }
 
-    $googlemeet->days = json_decode($googlemeet->days);
+    if(isset($googlemeet->days)) {
+        $googlemeet->days = json_decode($googlemeet->days);
+    }
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
     googlemeet_set_events($events);
@@ -107,7 +111,9 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
 
     $googlemeet->id = $googlemeet->instance;
 
-    $googlemeet->days = json_encode($googlemeet->days);
+    if(isset($googlemeet->days)) {
+        $googlemeet->days = json_encode($googlemeet->days);
+    }
 
     $url = googlemeet_clearUrl($googlemeet->url);
     if ($url) {
@@ -118,7 +124,9 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
 
     $googlemeetUpdated = $DB->update_record('googlemeet', $googlemeet);
 
-    $googlemeet->days = json_decode($googlemeet->days);
+    if(isset($googlemeet->days)) {
+        $googlemeet->days = json_decode($googlemeet->days);
+    }
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
     googlemeet_set_events($events);
