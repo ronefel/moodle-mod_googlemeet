@@ -457,7 +457,7 @@ function googlemeet_get_upcoming_events($googlemeetId) {
     $now = time() - MINSECS;
 
     $sql = "SELECT id,eventdate,duration
-              FROM mdl_googlemeet_events
+              FROM {googlemeet_events}
              WHERE googlemeetid = {$googlemeetId}
                AND (eventdate > {$now} OR eventdate = {$now})
              LIMIT 5";
