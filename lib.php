@@ -73,10 +73,12 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     if(isset($googlemeet->days)) {
         $googlemeet->days = json_encode($googlemeet->days);
     }
-
-    $url = googlemeet_clearUrl($googlemeet->url);
-    if ($url) {
-        $googlemeet->url = $url;
+    
+    if(isset($googlemeet->url)) {
+        $url = googlemeet_clearUrl($googlemeet->url);
+        if ($url) {
+            $googlemeet->url = $url;
+        }
     }
 
     $googlemeet->timemodified = time();
@@ -115,9 +117,11 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
         $googlemeet->days = json_encode($googlemeet->days);
     }
 
-    $url = googlemeet_clearUrl($googlemeet->url);
-    if ($url) {
-        $googlemeet->url = $url;
+    if(isset($googlemeet->url)) {
+        $url = googlemeet_clearUrl($googlemeet->url);
+        if ($url) {
+            $googlemeet->url = $url;
+        }
     }
 
     $googlemeet->timemodified = time();
