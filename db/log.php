@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -27,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $logs = array(
-    array('module'=>'googlemeet', 'action'=>'view', 'mtable'=>'googlemeet', 'field'=>'name'),
-    array('module'=>'googlemeet', 'action'=>'view all', 'mtable'=>'googlemeet', 'field'=>'name'),
-    array('module'=>'googlemeet', 'action'=>'update', 'mtable'=>'googlemeet', 'field'=>'name'),
-    array('module'=>'googlemeet', 'action'=>'add', 'mtable'=>'googlemeet', 'field'=>'name'),
+    array('module' => 'googlemeet', 'action' => 'view', 'mtable' => 'googlemeet', 'field' => 'name'),
+    array('module' => 'googlemeet', 'action' => 'view all', 'mtable' => 'googlemeet', 'field' => 'name'),
+    array('module' => 'googlemeet', 'action' => 'update', 'mtable' => 'googlemeet', 'field' => 'name'),
+    array('module' => 'googlemeet', 'action' => 'add', 'mtable' => 'googlemeet', 'field' => 'name'),
 );

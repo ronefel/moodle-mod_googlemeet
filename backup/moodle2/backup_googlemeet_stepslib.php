@@ -18,16 +18,12 @@
  * Backup steps for mod_googlemeet are defined here.
  *
  * @package     mod_googlemeet
- * @category    backup
+ * @subpackage  backup-moodle2
  * @copyright   2020 Rone Santos <ronefel@hotmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-// For more information about the backup and restore process, please visit:
-// https://docs.moodle.org/dev/Backup_2.0_for_developers
-// https://docs.moodle.org/dev/Restore_2.0_for_developers
 
 /**
  * Define the complete structure for backup, with file and id annotations.
@@ -100,7 +96,7 @@ class backup_googlemeet_activity_structure_step extends backup_activity_structur
         // Define id annotations.
 
         // Define file annotations.
-        $googlemeet->annotate_files('mod_googlemeet', 'intro', null); // This file area hasn't itemid
+        $googlemeet->annotate_files('mod_googlemeet', 'intro', null); // This file area hasn't itemid.
 
         return $this->prepare_activity_structure($googlemeet);
     }

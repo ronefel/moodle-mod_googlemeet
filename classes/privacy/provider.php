@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The mod_googlemeet module does not store any data.
  */
-class provider implements 
+class provider implements
         // This plugin does store personal user data.
         \core_privacy\local\metadata\provider,
 
@@ -72,7 +72,7 @@ class provider implements
      * @return  contextlist   $contextlist  The list of contexts used in this plugin.
      */
     public static function get_contexts_for_userid(int $userid) : contextlist {
-    
+
         $sql = "SELECT c.id
                   FROM {context} c
             INNER JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
@@ -81,16 +81,16 @@ class provider implements
             INNER JOIN {googlemeet_events} ge ON ge.googlemeetid = g.id
             INNER JOIN {googlemeet_notify_done} gnd ON gnd.eventid = ge.id
                  WHERE gnd.userid = :userid";
- 
+
         $params = [
             'modname'       => 'googlemeet',
             'contextlevel'  => CONTEXT_MODULE,
             'userid'        => $userid,
         ];
- 
+
         $contextlist = new contextlist();
         $contextlist->add_from_sql($sql, $params);
- 
+
         return $contextlist;
     }
 
@@ -182,16 +182,16 @@ class provider implements
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
-    
+
         if ($context->contextlevel != CONTEXT_MODULE) {
             return;
         }
-    
+
         $cm = get_coursemodule_from_id('googlemeet', $context->instanceid);
         if (!$cm) {
             return;
         }
-    
+
         $DB->delete_records_select(
             'googlemeet_notify_done',
             "eventid IN (SELECT id FROM {googlemeet_events} WHERE googlemeetid = :googlemeetid)",

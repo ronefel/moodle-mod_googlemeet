@@ -25,7 +25,6 @@
 require(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 require_once(__DIR__ . '/locallib.php');
-// require_once($CFG->libdir . '/completionlib.php');
 
 $config = get_config('googlemeet');
 
@@ -70,7 +69,7 @@ googlemeet_print_header($googlemeet, $cm, $course);
 googlemeet_print_heading($googlemeet, $cm, $course, true);
 googlemeet_print_intro($googlemeet, $cm, $course, true);
 
-echo '<a 
+echo '<a
         href="' . $googlemeet->url . '"
         class="btn btn-primary"
         id="id_enterroom"

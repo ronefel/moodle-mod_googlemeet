@@ -28,6 +28,14 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
+/**
+ * Send notification about the start of the event.
+ *
+ * @package     mod_googlemeet
+ * @category    external
+ * @copyright   2020 Rone Santos <ronefel@hotmail.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class notify_event extends \core\task\scheduled_task {
     /**
      * Returns localised general event name.

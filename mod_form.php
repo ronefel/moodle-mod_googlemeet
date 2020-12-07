@@ -87,11 +87,13 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $mform->createElement('html', '<div class="items-center">' . get_string('to', 'googlemeet') . '</div>'),
             $mform->createElement('select', 'endhour', get_string('hour', 'form'), $hours, false, true),
             $mform->createElement('select', 'endminute', get_string('minute', 'form'), $minutes, false, true),
-            $mform->createElement('html', '<div id="id_googlemeet_eventtime_error" class="form-control-feedback invalid-feedback"></div>'),
+            $mform->createElement('html',
+                '<div id="id_googlemeet_eventtime_error" class="form-control-feedback invalid-feedback"></div>'
+            ),
         ];
         $mform->addGroup($eventtime, 'eventtime', get_string('eventdate', 'googlemeet'), [''], false);
 
-        // For multiple dates
+        // For multiple dates.
         $mform->addElement('header', 'headeraddmultipleeventdates', get_string('recurrenceeventdate', 'googlemeet'));
         if (!empty($config->multieventdateexpanded) || !empty($this->current->addmultiply)) {
             $mform->setExpanded('headeraddmultipleeventdates');
@@ -106,7 +108,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $mform->createElement('checkbox', 'Wed', '', get_string('wednesday', 'calendar')),
             $mform->createElement('checkbox', 'Thu', '', get_string('thursday', 'calendar')),
             $mform->createElement('checkbox', 'Fri', '', get_string('friday', 'calendar')),
-            $mform->createElement('checkbox', 'Sat', '', get_string('saturday', 'calendar')),            
+            $mform->createElement('checkbox', 'Sat', '', get_string('saturday', 'calendar')),
         ];
 
         if ($CFG->calendar_startwday === '0') { // Week start from sunday.
@@ -115,7 +117,11 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             array_push($days, $mform->createElement('checkbox', 'Sun', '', get_string('sunday', 'calendar')));
         }
 
-        array_push($days, $mform->createElement('html', '<div id="id_googlemeet_days_error" class="form-control-feedback invalid-feedback"></div>'));
+        array_push($days,
+            $mform->createElement('html',
+                '<div id="id_googlemeet_days_error" class="form-control-feedback invalid-feedback"></div>'
+            )
+        );
 
         $mform->addGroup($days, 'days', get_string('repeaton', 'googlemeet'), ['&nbsp;&nbsp;&nbsp;']);
         $mform->disabledIf('days', 'addmultiply', 'notchecked');
@@ -127,15 +133,19 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $periodgroup = [
             $mform->createElement('select', 'period', '', $period, false, true),
             $mform->createElement('html', '<div class="items-center">' . get_string('week', 'googlemeet') . '</div>'),
-            $mform->createElement('html', '<div id="id_googlemeet_periodgroup_error" class="form-control-feedback invalid-feedback"></div>'),
+            $mform->createElement('html',
+                '<div id="id_googlemeet_periodgroup_error" class="form-control-feedback invalid-feedback"></div>'
+            ),
         ];
         $mform->addGroup($periodgroup, 'periodgroup', get_string('repeatevery', 'googlemeet'), [''], false);
         $mform->disabledIf('periodgroup', 'addmultiply', 'notchecked');
 
         $eventenddategroup = [
             $mform->createElement('date_selector', 'eventenddate', ''),
-            $mform->createElement('html', '<div id="id_googlemeet_eventenddategroup_error" class="form-control-feedback invalid-feedback"></div>'),
-        ];        
+            $mform->createElement('html',
+                '<div id="id_googlemeet_eventenddategroup_error" class="form-control-feedback invalid-feedback"></div>'
+            ),
+        ];
         $mform->addGroup($eventenddategroup, 'eventenddategroup', get_string('repeatuntil', 'googlemeet'), [''], false);
         $mform->disabledIf('eventenddategroup', 'addmultiply', 'notchecked');
 
@@ -164,7 +174,9 @@ class mod_googlemeet_mod_form extends moodleform_mod {
                     $mform->createElement('hidden', 'url', null, ['id' => 'id_url']),
                     $mform->createElement('hidden', 'originalname', null, ['id' => 'id_originalname']),
                     $mform->createElement('hidden', 'creatoremail', null, ['id' => 'id_creatoremail']),
-                    $mform->createElement('html', '<div id="id_googlemeet_generateurlgroup_error" class="form-control-feedback invalid-feedback"></div>'),
+                    $mform->createElement('html',
+                        '<div id="id_googlemeet_generateurlgroup_error" class="form-control-feedback invalid-feedback"></div>'
+                    ),
                 ];
 
                 $mform->addGroup($generateurlgroup, 'generateurlgroup', get_string('roomurl', 'googlemeet'), [' '], false);
@@ -203,7 +215,9 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         for ($i = 0; $i <= 120; $i = $i + 5) {
             $minutes[$i] = $i;
         }
-        $minutesbefore = $mform->addElement('select', 'minutesbefore', get_string('minutesbefore', 'googlemeet'), $minutes, false, true);
+        $minutesbefore = $mform->addElement('select',
+            'minutesbefore', get_string('minutesbefore', 'googlemeet'), $minutes, false, true
+        );
         $minutesbefore->setSelected($config->minutesbefore);
         $mform->addHelpButton('minutesbefore', 'minutesbefore', 'googlemeet');
 
@@ -214,13 +228,25 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
-
-    function data_preprocessing(&$default_values) {
+    /**
+     * Decode json format from the database
+     *
+     * @param array $defaultvalues Form defaults
+     * @return void
+     */
+    public function data_preprocessing(&$defaultvalues) {
         if ($this->current->instance) {
-            $default_values['days'] = (array) json_decode($default_values['days']);
+            $defaultvalues['days'] = (array) json_decode($defaultvalues['days']);
         }
     }
 
+    /**
+     * Enforce validation rules here
+     *
+     * @param array $data array of ("fieldname"=>value) of submitted data
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path
+     * @return array
+     **/
     public function validation($data, $files) {
         global $COURSE;
 
@@ -261,7 +287,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         }
 
         if (!$this->current->instance) {
-            $url = googlemeet_clearUrl($data['url']);
+            $url = googlemeet_clear_url($data['url']);
             if (!$url) {
                 $errors['generateurlgroup'] = get_string('url_failed', 'googlemeet');
                 $errors['url'] = get_string('url_failed', 'googlemeet');

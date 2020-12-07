@@ -42,6 +42,11 @@ class course_module_viewed extends \core\event\course_module_viewed {
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }
 
+    /**
+     * Defines mapping of the 'objectid' property when restoring course logs.
+     *
+     * @return array
+     */
     public static function get_objectid_mapping() {
         return array('db' => 'googlemeet', 'restore' => 'googlemeet');
     }

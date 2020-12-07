@@ -25,10 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// For more information about the backup and restore process, please visit:
-// https://docs.moodle.org/dev/Backup_2.0_for_developers
-// https://docs.moodle.org/dev/Restore_2.0_for_developers
-
 require_once($CFG->dirroot.'/mod/googlemeet/backup/moodle2/backup_googlemeet_stepslib.php');
 
 /**
@@ -53,22 +49,22 @@ class backup_googlemeet_activity_task extends backup_activity_task {
     /**
      * Codes the transformations to perform in the activity in order to get transportable (encoded) links.
      *
-     * @param string $content.
-     * @return string.
+     * @param string $content
+     * @return string
      */
     static public function encode_content_links($content) {
         global $CFG;
- 
-        $base = preg_quote($CFG->wwwroot,"/");
- 
-        // Link to the list of googlemeets
-        $search="/(".$base."\/mod\/googlemeet\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@GOOGLEMEETINDEX*$2@$', $content);
- 
-        // Link to googlemeet view by moduleid
-        $search="/(".$base."\/mod\/googlemeet\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@GOOGLEMEETVIEWBYID*$2@$', $content);
- 
+
+        $base = preg_quote($CFG->wwwroot, "/");
+
+        // Link to the list of googlemeets.
+        $search = "/(".$base."\/mod\/googlemeet\/index.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@GOOGLEMEETINDEX*$2@$', $content);
+
+        // Link to googlemeet view by moduleid.
+        $search = "/(".$base."\/mod\/googlemeet\/view.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@GOOGLEMEETVIEWBYID*$2@$', $content);
+
         return $content;
     }
 }

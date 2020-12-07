@@ -30,7 +30,7 @@
         "visible": 1
       }
     ],
-    "coursemoduleId": 1919,
+    "coursemoduleid": 1919,
     "hascapability": 1
   }
 }}
@@ -130,7 +130,7 @@
         $('.recordingeditname').on('click', function() {
           var node = $(this).parent();
           var text = $(this).siblings('span');
-          var recordingId = $(this).attr('data-id');
+          var recordingid = $(this).attr('data-id');
           
           text.hide();
           $(this).hide();
@@ -138,7 +138,7 @@
           var inputtext = document.createElement('input');
           inputtext.type = 'text';
           inputtext.className = 'form-control';
-          inputtext.id = recordingId;
+          inputtext.id = recordingid;
           inputtext.value = text.html();
           inputtext.setAttribute('data-value', text.html());
           inputtext.addEventListener('keydown', recordingeditkeydown);
@@ -179,9 +179,9 @@
           Ajax.call([{
             methodname: 'mod_googlemeet_recording_edit_name',
             args: {
-              recordingId: element.attr('id'),
+              recordingid: element.attr('id'),
               name: element.val(),
-              coursemoduleId: {{ coursemoduleId }}
+              coursemoduleid: {{ coursemoduleid }}
             }
           }])[0].then(function (response) {
             text.html(response.name).show();
@@ -213,7 +213,7 @@
 
         $('.recordinghowhide').on('click', function() {
           var recordinghowhide = $(this);
-          var recordingId = recordinghowhide.attr('data-id');
+          var recordingid = recordinghowhide.attr('data-id');
           var recordinghowhideoldchild = recordinghowhide.html();
 
           recordinghowhide.html('{{# pix }} i/processing16, googlemeet, {{# str }} loading, mod_googlemeet {{/ str }} {{/ pix }}');
@@ -221,8 +221,8 @@
           Ajax.call([{
             methodname: 'mod_googlemeet_showhide_recording',
             args: {
-              recordingId: recordingId,
-              coursemoduleId: {{ coursemoduleId }}
+              recordingid: recordingid,
+              coursemoduleid: {{ coursemoduleid }}
             }
           }])[0].then(function (response) {
             if (response.visible){

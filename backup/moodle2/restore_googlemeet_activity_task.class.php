@@ -18,16 +18,12 @@
  * The task that provides a complete restore of mod_googlemeet is defined here.
  *
  * @package     mod_googlemeet
- * @category    restore
+ * @subpackage  backup-moodle2
  * @copyright   2020 Rone Santos <ronefel@hotmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-// For more information about the backup and restore process, please visit:
-// https://docs.moodle.org/dev/Backup_2.0_for_developers
-// https://docs.moodle.org/dev/Restore_2.0_for_developers
 
 require_once($CFG->dirroot.'//mod/googlemeet/backup/moodle2/restore_googlemeet_stepslib.php');
 
@@ -80,9 +76,9 @@ class restore_googlemeet_activity_task extends restore_activity_task {
     }
 
     /**
-     * Defines the restore log rules that will be applied by the
-     * {@link restore_logs_processor} when restoring mod_googlemeet logs. It
-     * must return one array of {@link restore_log_rule} objects.
+     * Defines the restore log rules that will be applied by the restore_logs_processor
+     * when restoring mod_googlemeet logs.
+     * It must return one array of restore_log_rule objects.
      *
      * @return array.
      */

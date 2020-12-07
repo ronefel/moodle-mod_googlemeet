@@ -2,9 +2,9 @@ define([
   'core/notification',
   'core/str',
   'mod_googlemeet/gapi'
-], function (notification, str, gapi) {
+], function(notification, str, gapi) {
   return {
-    init: function (clientId, apiKey, userTimeZone) {
+    init: function(clientId, apiKey, userTimeZone) {
       // Array of API discovery doc URLs for APIs used by the quickstart
       var discoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
 
@@ -18,12 +18,12 @@ define([
       var invalideventenddate = '';
       var timeahead = '';
       str.get_strings([
-        { key: 'requirednamefield', component: 'mod_googlemeet' },
-        { key: 'checkweekdays', component: 'mod_googlemeet' },
-        { key: 'invalideventendtime', component: 'mod_googlemeet' },
-        { key: 'invalideventenddate', component: 'mod_googlemeet' },
-        { key: 'timeahead', component: 'mod_googlemeet' },
-      ]).done(function (strs) {
+        {key: 'requirednamefield', component: 'mod_googlemeet'},
+        {key: 'checkweekdays', component: 'mod_googlemeet'},
+        {key: 'invalideventendtime', component: 'mod_googlemeet'},
+        {key: 'invalideventenddate', component: 'mod_googlemeet'},
+        {key: 'timeahead', component: 'mod_googlemeet'},
+      ]).done(function(strs) {
         requiredfield = strs[0];
         strcheckweekdays = strs[1];
         invalideventendtime = strs[2];
@@ -48,10 +48,11 @@ define([
           clientId: clientId,
           discoveryDocs: discoveryDocs,
           scope: scope
-        }).then(function () {
+        }).then(function() {
           generateUrlRoomButton.onclick = handleCreateEvent;
           generateUrlRoomButton.disabled = false;
-        }, function (error) {
+          return;
+        }).catch(function(error) {
           generateUrlRoomButton.disabled = true;
           appendPre(JSON.stringify(error, null, 2));
         });
@@ -59,7 +60,7 @@ define([
 
       /**
        * Returns date formatted in yyyy-mm-dd format
-       * 
+       *
        * @param {string} name name of date filed in formdata
        * @param {boolean} format if it is to return the formatted date
        * @return {string} The formatted date
@@ -82,7 +83,7 @@ define([
 
       /**
        * Checks whether the selected day of the week exists within the start and end dates
-       * @return {boolean} 
+       * @return {boolean}
        */
       function checkweekdays() {
         var formData = new FormData(form);
@@ -107,7 +108,6 @@ define([
 
         var start = new Date(eventdate);
         var end = new Date(eventenddate);
-        // end = new Date(end.setDate(end.getDate()));
 
         var found = false;
         while (start <= end) {
@@ -129,13 +129,13 @@ define([
 
       /**
        * Validates form data
-       * @return {boolean} 
+       * @return {boolean}
        */
       function validate() {
         var valid = true;
         var formData = new FormData(form);
 
-        // name is required
+        // The name is required
         var nameInput = document.getElementById('id_name');
         var nameError = document.getElementById('id_error_name');
         if (formData.get('name').trim().length === 0) {
@@ -212,18 +212,22 @@ define([
       /**
        * Initializes the creation of the event in Google Calendar
        */
-      function handleCreateEvent() {
+      async function handleCreateEvent() {
         hidePre();
 
         if (!validate()) {
           return;
         }
 
-        gapi.auth2.getAuthInstance().signIn({ prompt: 'select_account' }).then(function () {
-          createEvent();
-        });
+        await gapi.auth2.getAuthInstance().signIn({prompt: 'select_account'});
+        createEvent();
       }
 
+      /**
+       * Displays loading
+       *
+       * @param {boolean} show if it is to show loading
+       */
       function showLoading(show) {
         var generateurlroomLoading = document.getElementById('generateurlroomLoading');
 
@@ -238,8 +242,8 @@ define([
 
       /**
        * Concatenates with name a random number
-       * 
-       * @param {string} name 
+       *
+       * @param {string} name
        * @return {string} The formatted name
        */
       function formatName(name) {
@@ -260,6 +264,9 @@ define([
         pre.appendChild(textContent);
       }
 
+      /**
+       * Hide the pre tag
+       */
       function hidePre() {
         var pre = document.getElementById('googlemeetcontentlog');
         pre.style.display = "none";
@@ -269,7 +276,7 @@ define([
       /**
        * Creates the event on Google Calendar
        */
-      function createEvent() {
+      async function createEvent() {
         var formData = new FormData(form);
 
         var starthour = formData.get('starthour');
@@ -324,7 +331,7 @@ define([
         }
 
         var name = formatName(formData.get('name'));
-        var event = {
+        var eventResource = {
           summary: name,
           description: formData.get('introeditor[text]'),
           start: start,
@@ -334,44 +341,38 @@ define([
 
         showLoading(true);
 
-        gapi.client.calendar.events.insert({
+        var response = await gapi.client.calendar.events.insert({
           'calendarId': 'primary',
-          'resource': event
-        }).then(function (response) {
-          var event = response.result;
-
-          var eventPatch = {
-            conferenceData: {
-              createRequest: { requestId: event.id }
-            }
-          };
-
-          gapi.client.calendar.events.patch({
-            calendarId: "primary",
-            eventId: event.id,
-            resource: eventPatch,
-            sendNotifications: false,
-            conferenceDataVersion: 1
-          }).then(function (response) {
-            var event = response.result;
-
-            generateUrlRoomButton.remove();
-            originalNameFieldHidden.value = name;
-            urlFieldHidden.value = event.hangoutLink;
-            urlViewerField.value = event.hangoutLink;
-            creatorEmailFieldHidden.value = event.creator.email;
-
-            document.getElementById('id_googlemeet_generateurlgroup_error').style.display = 'none';
-
-            showLoading(false);
-          }).catch(function (error) {
-            appendPre(JSON.stringify(error.result.error, null, 2));
-            showLoading(false);
-          });
-        }).catch(function (error) {
-          appendPre(JSON.stringify(error.result.error, null, 2));
-          showLoading(false);
+          'resource': eventResource
         });
+
+        var eventId = response.result.id;
+
+        var eventPatch = {
+          conferenceData: {
+            createRequest: {requestId: eventId}
+          }
+        };
+
+        var res = await gapi.client.calendar.events.patch({
+          calendarId: "primary",
+          eventId: eventId,
+          resource: eventPatch,
+          sendNotifications: false,
+          conferenceDataVersion: 1
+        });
+
+        var event = res.result;
+
+        generateUrlRoomButton.remove();
+        originalNameFieldHidden.value = name;
+        urlFieldHidden.value = event.hangoutLink;
+        urlViewerField.value = event.hangoutLink;
+        creatorEmailFieldHidden.value = event.creator.email;
+
+        document.getElementById('id_googlemeet_generateurlgroup_error').style.display = 'none';
+
+        showLoading(false);
       }
 
       /**

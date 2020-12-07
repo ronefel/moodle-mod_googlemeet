@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $functions = array(
     'mod_googlemeet_sync_recordings' => array(
         'classname' => 'mod_googlemeet_external',

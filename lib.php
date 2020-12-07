@@ -70,12 +70,12 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    if(isset($googlemeet->days)) {
+    if (isset($googlemeet->days)) {
         $googlemeet->days = json_encode($googlemeet->days);
     }
-    
-    if(isset($googlemeet->url)) {
-        $url = googlemeet_clearUrl($googlemeet->url);
+
+    if (isset($googlemeet->url)) {
+        $url = googlemeet_clear_url($googlemeet->url);
         if ($url) {
             $googlemeet->url = $url;
         }
@@ -87,7 +87,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
         return false;
     }
 
-    if(isset($googlemeet->days)) {
+    if (isset($googlemeet->days)) {
         $googlemeet->days = json_decode($googlemeet->days);
     }
     $events = googlemeet_construct_events_data_for_add($googlemeet);
@@ -113,12 +113,12 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
 
     $googlemeet->id = $googlemeet->instance;
 
-    if(isset($googlemeet->days)) {
+    if (isset($googlemeet->days)) {
         $googlemeet->days = json_encode($googlemeet->days);
     }
 
-    if(isset($googlemeet->url)) {
-        $url = googlemeet_clearUrl($googlemeet->url);
+    if (isset($googlemeet->url)) {
+        $url = googlemeet_clear_url($googlemeet->url);
         if ($url) {
             $googlemeet->url = $url;
         }
@@ -126,16 +126,16 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
 
     $googlemeet->timemodified = time();
 
-    $googlemeetUpdated = $DB->update_record('googlemeet', $googlemeet);
+    $googlemeetupdated = $DB->update_record('googlemeet', $googlemeet);
 
-    if(isset($googlemeet->days)) {
+    if (isset($googlemeet->days)) {
         $googlemeet->days = json_decode($googlemeet->days);
     }
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
     googlemeet_set_events($events);
 
-    return $googlemeetUpdated;
+    return $googlemeetupdated;
 }
 
 /**
@@ -161,14 +161,15 @@ function googlemeet_delete_instance($id) {
 }
 
 /**
- * Given a course_module object, this function returns any
- * "extra" information that may be needed when printing
- * this activity in a course listing.
+ * Add a get_coursemodule_info function in case any feedback type wants to add 'extra' information
+ * for the course (see resource).
  *
- * See {@link get_array_of_activities()} in course/lib.php
+ * Given a course_module object, this function returns any "extra" information that may be needed
+ * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
  *
- * @param object $coursemodule
- * @return cached_cm_info info
+ * @param stdClass $coursemodule The coursemodule object (record).
+ * @return cached_cm_info An object on information that the courses
+ *                        will know about (most noticeably, an icon).
  */
 function googlemeet_get_coursemodule_info($coursemodule) {
     global $CFG, $DB;
@@ -178,7 +179,7 @@ function googlemeet_get_coursemodule_info($coursemodule) {
         ['id' => $coursemodule->instance],
         'id, name, url, intro, introformat'
     )) {
-        return NULL;
+        return null;
     }
 
     $info = new cached_cm_info();
@@ -223,7 +224,7 @@ function googlemeet_view($googlemeet, $course, $cm, $context) {
 /**
  * Returns a list of recordings from Google Meet
  *
- * @param int $id Id of googlemeet.
+ * @param array $params Array of parameters to a query.
  * @return stdClass $formattedrecordings    List of recordings
  */
 function googlemeet_list_recordings($params) {

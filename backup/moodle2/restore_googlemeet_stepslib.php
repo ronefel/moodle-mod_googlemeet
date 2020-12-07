@@ -18,16 +18,12 @@
  * All the steps to restore mod_googlemeet are defined here.
  *
  * @package     mod_googlemeet
- * @category    restore
+ * @subpackage  backup-moodle2
  * @copyright   2020 Rone Santos <ronefel@hotmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-// For more information about the backup and restore process, please visit:
-// https://docs.moodle.org/dev/Backup_2.0_for_developers
-// https://docs.moodle.org/dev/Restore_2.0_for_developers
 
 /**
  * Defines the structure step to restore one mod_googlemeet activity.
@@ -42,7 +38,7 @@ class restore_googlemeet_activity_structure_step extends restore_activity_struct
     protected function define_structure() {
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
-        
+
         $paths[] = new restore_path_element('googlemeet', '/activity/googlemeet');
 
         $paths[] = new restore_path_element('googlemeet_event',
@@ -54,6 +50,12 @@ class restore_googlemeet_activity_structure_step extends restore_activity_struct
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Process a googlemeet restore.
+     *
+     * @param object $data The data in object form
+     * @return void
+     */
     protected function process_googlemeet($data) {
         global $DB;
 
@@ -67,12 +69,18 @@ class restore_googlemeet_activity_structure_step extends restore_activity_struct
         $data->eventenddate = $this->apply_date_offset($data->eventenddate);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        // insert the googlemeet record
+        // Insert the googlemeet record.
         $newitemid = $DB->insert_record('googlemeet', $data);
-        // immediately after inserting "activity" record, call this
+        // Immediately after inserting "activity" record, call this.
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Process a event restore.
+     *
+     * @param object $data The data in object form
+     * @return void
+     */
     protected function process_googlemeet_event($data) {
         global $DB;
 
@@ -87,6 +95,12 @@ class restore_googlemeet_activity_structure_step extends restore_activity_struct
         $this->set_mapping('googlemeet_event', $oldid, $newitemid);
     }
 
+    /**
+     * Process a recording restore.
+     *
+     * @param object $data The data in object form
+     * @return void
+     */
     protected function process_googlemeet_recording($data) {
         global $DB;
 
