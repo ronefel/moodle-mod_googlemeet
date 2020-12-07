@@ -103,18 +103,18 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $mform->addHelpButton('addmultiply', 'recurrenceeventdate', 'googlemeet');
 
         $days = [
-            $mform->createElement('checkbox', 'Mon', '', get_string('monday', 'calendar')),
-            $mform->createElement('checkbox', 'Tue', '', get_string('tuesday', 'calendar')),
-            $mform->createElement('checkbox', 'Wed', '', get_string('wednesday', 'calendar')),
-            $mform->createElement('checkbox', 'Thu', '', get_string('thursday', 'calendar')),
-            $mform->createElement('checkbox', 'Fri', '', get_string('friday', 'calendar')),
-            $mform->createElement('checkbox', 'Sat', '', get_string('saturday', 'calendar')),
+            $mform->createElement('checkbox', 'days[Mon]', '', get_string('monday', 'calendar')),
+            $mform->createElement('checkbox', 'days[Tue]', '', get_string('tuesday', 'calendar')),
+            $mform->createElement('checkbox', 'days[Wed]', '', get_string('wednesday', 'calendar')),
+            $mform->createElement('checkbox', 'days[Thu]', '', get_string('thursday', 'calendar')),
+            $mform->createElement('checkbox', 'days[Fri]', '', get_string('friday', 'calendar')),
+            $mform->createElement('checkbox', 'days[Sat]', '', get_string('saturday', 'calendar')),
         ];
 
         if ($CFG->calendar_startwday === '0') { // Week start from sunday.
-            array_unshift($days, $mform->createElement('checkbox', 'Sun', '', get_string('sunday', 'calendar')));
+            array_unshift($days, $mform->createElement('checkbox', 'days[Sun]', '', get_string('sunday', 'calendar')));
         } else {
-            array_push($days, $mform->createElement('checkbox', 'Sun', '', get_string('sunday', 'calendar')));
+            array_push($days, $mform->createElement('checkbox', 'days[Sun]', '', get_string('sunday', 'calendar')));
         }
 
         array_push($days,
@@ -123,7 +123,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             )
         );
 
-        $mform->addGroup($days, 'days', get_string('repeaton', 'googlemeet'), ['&nbsp;&nbsp;&nbsp;']);
+        $mform->addGroup($days, 'days', get_string('repeaton', 'googlemeet'), ['&nbsp;&nbsp;&nbsp;'], false);
         $mform->disabledIf('days', 'addmultiply', 'notchecked');
 
         $period = array(
@@ -236,7 +236,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         if ($this->current->instance) {
-            $defaultvalues['days'] = (array) json_decode($defaultvalues['days']);
+            $defaultvalues['days'] = json_decode($defaultvalues['days'], true);
         }
     }
 
@@ -264,12 +264,15 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $data['eventenddate'] !== 0 &&
             $data['eventenddate'] < $data['eventdate']
         ) {
-            $errors['eventenddate'] = get_string('invalideventenddate', 'googlemeet');
+            $errors['eventenddategroup'] = get_string('invalideventenddate', 'googlemeet');
         }
 
         $addmulti = isset($data['addmultiply']) ? (int)$data['addmultiply'] : 0;
+        $days = isset($data['days']);
 
-        if ($addmulti && !$this->checkweekdays($data['eventdate'], $data['eventenddate'], $data['days'])) {
+        if ($addmulti && !$days) {
+            $errors['days'] = get_string('checkweekdays', 'googlemeet');
+        } else if ($addmulti && !$this->checkweekdays($data['eventdate'], $data['eventenddate'], $data['days'])) {
             $errors['days'] = get_string('checkweekdays', 'googlemeet');
         }
 
@@ -306,6 +309,10 @@ class mod_googlemeet_mod_form extends moodleform_mod {
      */
     private function checkweekdays($eventdate, $eventenddate, $days) {
         $found = false;
+
+        if (!$days) {
+            return false;
+        }
 
         $daysofweek = [
             0 => "Sun",

@@ -101,11 +101,7 @@ function googlemeet_construct_events_data_for_add($googlemeet) {
 
     if (isset($googlemeet->addmultiply)) {
         $startdate = $eventdate + DAYSECS;
-        $enddate = $googlemeet->eventenddate + $eventendtime + DAYSECS;
-
-        if ($enddate < $startdate) {
-            return null;
-        }
+        $enddate = $googlemeet->eventenddate + $eventendtime;
 
         // Getting first day of week.
         $sdate = $startdate;

@@ -113,8 +113,15 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
 
     $googlemeet->id = $googlemeet->instance;
 
-    if (isset($googlemeet->days)) {
-        $googlemeet->days = json_encode($googlemeet->days);
+    if (isset($googlemeet->addmultiply)) {
+        if (isset($googlemeet->days)) {
+            $googlemeet->days = json_encode($googlemeet->days);
+        }
+    } else {
+        $googlemeet->addmultiply = 0;
+        $googlemeet->days = null;
+        $googlemeet->eventenddate = $googlemeet->eventdate;
+        $googlemeet->period = null;
     }
 
     if (isset($googlemeet->url)) {
