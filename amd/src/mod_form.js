@@ -212,15 +212,17 @@ define([
       /**
        * Initializes the creation of the event in Google Calendar
        */
-      async function handleCreateEvent() {
+      function handleCreateEvent() {
         hidePre();
 
         if (!validate()) {
           return;
         }
 
-        await gapi.auth2.getAuthInstance().signIn({prompt: 'select_account'});
-        createEvent();
+        gapi.auth2.getAuthInstance().signIn({prompt: 'select_account'}).then(function() {
+          createEvent();
+          return;
+        }).catch();
       }
 
       /**
@@ -276,7 +278,7 @@ define([
       /**
        * Creates the event on Google Calendar
        */
-      async function createEvent() {
+      function createEvent() {
         var formData = new FormData(form);
 
         var starthour = formData.get('starthour');
@@ -341,38 +343,46 @@ define([
 
         showLoading(true);
 
-        var response = await gapi.client.calendar.events.insert({
+        gapi.client.calendar.events.insert({
           'calendarId': 'primary',
           'resource': eventResource
+        }).then(function(response) {
+          var event = response.result;
+
+          var eventPatch = {
+            conferenceData: {
+              createRequest: {requestId: event.id}
+            }
+          };
+
+          gapi.client.calendar.events.patch({
+            calendarId: "primary",
+            eventId: event.id,
+            resource: eventPatch,
+            sendNotifications: false,
+            conferenceDataVersion: 1
+          }).then(function(response) {
+            var event = response.result;
+
+            generateUrlRoomButton.remove();
+            originalNameFieldHidden.value = name;
+            urlFieldHidden.value = event.hangoutLink;
+            urlViewerField.value = event.hangoutLink;
+            creatorEmailFieldHidden.value = event.creator.email;
+
+            document.getElementById('id_googlemeet_generateurlgroup_error').style.display = 'none';
+
+            showLoading(false);
+            return;
+          }).catch(function(error) {
+            appendPre(JSON.stringify(error.result.error, null, 2));
+            showLoading(false);
+          });
+          return;
+        }).catch(function(error) {
+          appendPre(JSON.stringify(error.result.error, null, 2));
+          showLoading(false);
         });
-
-        var eventId = response.result.id;
-
-        var eventPatch = {
-          conferenceData: {
-            createRequest: {requestId: eventId}
-          }
-        };
-
-        var res = await gapi.client.calendar.events.patch({
-          calendarId: "primary",
-          eventId: eventId,
-          resource: eventPatch,
-          sendNotifications: false,
-          conferenceDataVersion: 1
-        });
-
-        var event = res.result;
-
-        generateUrlRoomButton.remove();
-        originalNameFieldHidden.value = name;
-        urlFieldHidden.value = event.hangoutLink;
-        urlViewerField.value = event.hangoutLink;
-        creatorEmailFieldHidden.value = event.creator.email;
-
-        document.getElementById('id_googlemeet_generateurlgroup_error').style.display = 'none';
-
-        showLoading(false);
       }
 
       /**

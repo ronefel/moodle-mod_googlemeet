@@ -70,9 +70,11 @@ define([
       /**
        * Initiates sync with Google Drive
        */
-      async function handleSyncDrive() {
-        await gapi.auth2.getAuthInstance().signIn({prompt: 'select_account'});
-        getMeetFolder();
+      function handleSyncDrive() {
+        gapi.auth2.getAuthInstance().signIn({prompt: 'select_account'}).then(function() {
+          getMeetFolder();
+          return;
+        }).catch();
       }
 
       /**
@@ -117,15 +119,15 @@ define([
        * Generates the shareable link to anyone with the link
        * @param {string} fileId Google Drive recording ID
        */
-      async function setPermission(fileId) {
-        await gapi.client.drive.permissions.create({
+      function setPermission(fileId) {
+        gapi.client.drive.permissions.create({
           resource: {
             'type': 'anyone',
             'role': 'reader'
           },
           fileId: fileId,
           fields: 'id',
-        });
+        }).then().catch();
       }
 
       /**
@@ -192,108 +194,118 @@ define([
        * Get recordings from Google Drive
        * @param {string} meetFolderId 'Meet Recordings' folder ID
        */
-      async function getFiles(meetFolderId) {
-        var response = await gapi.client.drive.files.list({
+      function getFiles(meetFolderId) {
+        gapi.client.drive.files.list({
           'q': "parents='" + meetFolderId +
             "' and trashed=false and mimeType='video/mp4' " + getNameQuery(),
           'pageSize': 1000,
           'fields': "files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink)"
-        });
+        }).then(function(response) {
+          var files = response.result.files;
+          if (files && files.length > 0) {
+            for (var i = 0; i < files.length; i++) {
+              var file = files[i];
+              if (!file.permissionIds.includes('anyoneWithLink')) {
+                setPermission(file.id);
+              }
 
-        var files = response.result.files;
-        if (files && files.length > 0) {
-          for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-            if (!file.permissionIds.includes('anyoneWithLink')) {
-              setPermission(file.id);
+              files[i].recordingId = file.id;
+              files[i].duration = getTimeString(file.videoMediaMetadata.durationMillis);
+              files[i].createdTime = Math.floor(new Date(file.createdTime).getTime() / 1000);
+
+              delete (files[i].id);
+              delete (files[i].permissionIds);
+              delete (files[i].videoMediaMetadata);
             }
 
-            files[i].recordingId = file.id;
-            files[i].duration = getTimeString(file.videoMediaMetadata.durationMillis);
-            files[i].createdTime = Math.floor(new Date(file.createdTime).getTime() / 1000);
-
-            delete (files[i].id);
-            delete (files[i].permissionIds);
-            delete (files[i].videoMediaMetadata);
-          }
-
-          Ajax.call([{
-            methodname: 'mod_googlemeet_sync_recordings',
-            args: {
-              googlemeetid: googlemeet.id,
-              creatoremail: ownerEmail,
-              files: files,
-              coursemoduleid: courseModuleId
-            }
-          }])[0].then(function(response) {
-            renderTemplate(response);
-            hasRecording = true;
-            return;
-          }).fail(Notification.exception).fail(function() {
-            showLoading(false);
-          });
-
-        } else {
-
-          if (hasRecording) {
             Ajax.call([{
-              methodname: 'mod_googlemeet_delete_all_recordings',
+              methodname: 'mod_googlemeet_sync_recordings',
               args: {
                 googlemeetid: googlemeet.id,
+                creatoremail: ownerEmail,
+                files: files,
                 coursemoduleid: courseModuleId
               }
             }])[0].then(function(response) {
               renderTemplate(response);
-              hasRecording = false;
+              hasRecording = true;
               return;
             }).fail(Notification.exception).fail(function() {
               showLoading(false);
             });
-          }
-          var notfoundmsg = notfoundrecordingname + ' "' + meetingCode + '" ';
-          if (googlemeet.originalname) {
-            notfoundmsg += stror + ' "' + googlemeet.originalname + '"';
-          }
-          appendPre(notfoundmsg);
 
+          } else {
+
+            if (hasRecording) {
+              Ajax.call([{
+                methodname: 'mod_googlemeet_delete_all_recordings',
+                args: {
+                  googlemeetid: googlemeet.id,
+                  coursemoduleid: courseModuleId
+                }
+              }])[0].then(function(response) {
+                renderTemplate(response);
+                hasRecording = false;
+                return;
+              }).fail(Notification.exception).fail(function() {
+                showLoading(false);
+              });
+            }
+            var notfoundmsg = notfoundrecordingname + ' "' + meetingCode + '" ';
+            if (googlemeet.originalname) {
+              notfoundmsg += stror + ' "' + googlemeet.originalname + '"';
+            }
+            appendPre(notfoundmsg);
+
+            showLoading(false);
+          }
+          return;
+        }).catch(function(error) {
           showLoading(false);
-        }
+          appendPre(JSON.stringify(error.result.error, null, 2));
+        });
       }
 
       /**
        * Get 'Meet Recordings' folder from Google Drive
        */
-      async function getMeetFolder() {
+      function getMeetFolder() {
         showLoading(true);
         hidePre();
-
-        var response = await gapi.client.drive.files.list({
+        gapi.client.drive.files.list({
           'q': "name='Meet Recordings'",
           'pageSize': 100,
           'fields': "nextPageToken, files(id,owners)"
-        });
+        }).then(function(response) {
+          var files = response.result.files;
 
-        var files = response.result.files;
+          if (files && files.length > 0) {
+            if (!googlemeet.creatoremail || googlemeet.creatoremail === files[0].owners[0].emailAddress) {
+              ownerEmail = files[0].owners[0].emailAddress;
+              getFiles(files[0].id);
+              return;
+            }
 
-        if (files && files.length > 0) {
-          if (!googlemeet.creatoremail || googlemeet.creatoremail === files[0].owners[0].emailAddress) {
-            ownerEmail = files[0].owners[0].emailAddress;
-            getFiles(files[0].id);
-            return;
+            appendPre(notpossiblesync);
+            showLoading(false);
+          } else {
+            appendPre(notfoundrecordingsfolder);
           }
-
-          appendPre(notpossiblesync);
+          return;
+        }).catch(function(error) {
           showLoading(false);
-        } else {
-          appendPre(notfoundrecordingsfolder);
-          showLoading(false);
-        }
+          appendPre(JSON.stringify(error.result.error, null, 2));
+        });
       }
 
       /**
        *  On load, called to load the auth2 library and API client library.
        */
       gapi.load('client:auth2', initClient);
+      // Function handleClientLoad() {
+      // }
+
+      // window.addEventListener("load", handleClientLoad(), false);
     }
   };
 });
