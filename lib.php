@@ -162,6 +162,8 @@ function googlemeet_delete_instance($id) {
 
     googlemeet_delete_events($id);
 
+    $DB->delete_records('googlemeet_recordings', ['googlemeetid' => $id]);
+
     $DB->delete_records('googlemeet', array('id' => $id));
 
     return true;

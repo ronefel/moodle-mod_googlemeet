@@ -235,8 +235,15 @@ define([
             });
 
           } else {
+            var notfoundmsg = notfoundrecordingname + ' "' + meetingCode + '" ';
+            if (googlemeet.originalname) {
+              notfoundmsg += stror + ' "' + googlemeet.originalname + '"';
+            }
+            appendPre(notfoundmsg);
+            showLoading(false);
 
             if (hasRecording) {
+              showLoading(true);
               Ajax.call([{
                 methodname: 'mod_googlemeet_delete_all_recordings',
                 args: {
@@ -246,18 +253,12 @@ define([
               }])[0].then(function(response) {
                 renderTemplate(response);
                 hasRecording = false;
+                showLoading(false);
                 return;
               }).fail(Notification.exception).fail(function() {
                 showLoading(false);
               });
             }
-            var notfoundmsg = notfoundrecordingname + ' "' + meetingCode + '" ';
-            if (googlemeet.originalname) {
-              notfoundmsg += stror + ' "' + googlemeet.originalname + '"';
-            }
-            appendPre(notfoundmsg);
-
-            showLoading(false);
           }
           return;
         }).catch(function(error) {
