@@ -192,12 +192,12 @@ define([
 
       /**
        * Get recordings from Google Drive
-       * @param {string} meetFolderId 'Meet Recordings' folder ID
+       * @param {string} parents 'Meet Recordings' folder(s) ID(s)
        */
-      function getFiles(meetFolderId) {
+      function getFiles(parents) {
         gapi.client.drive.files.list({
-          'q': "parents='" + meetFolderId +
-            "' and trashed=false and mimeType='video/mp4' " + getNameQuery(),
+          'q': "(" + parents + ")" +
+            " and trashed=false and mimeType='video/mp4' " + getNameQuery(),
           'pageSize': 1000,
           'fields': "files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink)"
         }).then(function(response) {
@@ -268,22 +268,50 @@ define([
       }
 
       /**
+       * Checks if the owner of the folder is the same who created the room.
+       *
+       * @param {string} creatoremail Room creator email.
+       * @param {array} owners Folder owners list.
+       * @returns {boolean}
+       */
+      function isOwnerAndRoomCreator(creatoremail, owners) {
+        for (let i = 0; i < owners.length; i++) {
+          if (owners[i].me === true) {
+            return creatoremail === owners[i].emailAddress;
+          }
+        }
+        return false;
+      }
+
+      /**
        * Get 'Meet Recordings' folder from Google Drive
        */
       function getMeetFolder() {
         showLoading(true);
         hidePre();
         gapi.client.drive.files.list({
-          'q': "name='Meet Recordings'",
-          'pageSize': 100,
+          'q': "name='Meet Recordings' and trashed=false",
+          'pageSize': 1000,
           'fields': "nextPageToken, files(id,owners)"
         }).then(function(response) {
           var files = response.result.files;
 
           if (files && files.length > 0) {
-            if (!googlemeet.creatoremail || googlemeet.creatoremail === files[0].owners[0].emailAddress) {
-              ownerEmail = files[0].owners[0].emailAddress;
-              getFiles(files[0].id);
+            var parents = '';
+
+            for (let i = 0; i < files.length; i++) {
+              if (isOwnerAndRoomCreator(googlemeet.creatoremail, files[i].owners)) {
+                ownerEmail = googlemeet.creatoremail;
+                parents += `parents='${files[i].id}'`;
+                if (i + 1 < files.length) {
+                  parents += ' or ';
+                }
+              }
+
+            }
+
+            if (parents) {
+              getFiles(parents);
               return;
             }
 
@@ -291,6 +319,7 @@ define([
             showLoading(false);
           } else {
             appendPre(notfoundrecordingsfolder);
+            showLoading(false);
           }
           return;
         }).catch(function(error) {
@@ -303,10 +332,6 @@ define([
        *  On load, called to load the auth2 library and API client library.
        */
       gapi.load('client:auth2', initClient);
-      // Function handleClientLoad() {
-      // }
-
-      // window.addEventListener("load", handleClientLoad(), false);
     }
   };
 });
