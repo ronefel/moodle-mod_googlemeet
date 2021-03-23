@@ -37,7 +37,7 @@ define([
       var urlViewerField = document.getElementById('id_url_viewer');
       var originalNameFieldHidden = document.getElementById('id_originalname');
       var creatorEmailFieldHidden = document.getElementById('id_creatoremail');
-      var form = document.querySelector('#region-main .mform');
+      var form = document.querySelector('.mform');
       /**
        *  Initializes the API client library and sets up sign-in state
        *  listeners.
