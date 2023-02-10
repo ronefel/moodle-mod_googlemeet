@@ -186,6 +186,8 @@ class mod_googlemeet_mod_form extends moodleform_mod {
                 $mform->setType('originalname', PARAM_TEXT);
                 $mform->setType('creatoremail', PARAM_EMAIL);
 
+                $PAGE->requires->js(new moodle_url('https://accounts.google.com/gsi/client'), true);
+
                 $PAGE->requires->js_call_amd('mod_googlemeet/mod_form', 'init', [
                     $config->clientid,
                     $config->apikey,

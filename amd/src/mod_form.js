@@ -5,6 +5,11 @@ define([
 ], function(notification, str, gapi) {
   return {
     init: function(clientId, apiKey, userTimeZone) {
+      // GSI variables
+      let tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
+
       // Array of API discovery doc URLs for APIs used by the quickstart
       var discoveryDocs = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
 
@@ -38,25 +43,6 @@ define([
       var originalNameFieldHidden = document.getElementById('id_originalname');
       var creatorEmailFieldHidden = document.getElementById('id_creatoremail');
       var form = document.querySelector('#region-main .mform');
-      /**
-       *  Initializes the API client library and sets up sign-in state
-       *  listeners.
-       */
-      function initClient() {
-        gapi.client.init({
-          apiKey: apiKey,
-          clientId: clientId,
-          discoveryDocs: discoveryDocs,
-          scope: scope
-        }).then(function() {
-          generateUrlRoomButton.onclick = handleCreateEvent;
-          generateUrlRoomButton.disabled = false;
-          return;
-        }).catch(function(error) {
-          generateUrlRoomButton.disabled = true;
-          appendPre(JSON.stringify(error, null, 2));
-        });
-      }
 
       /**
        * Returns date formatted in yyyy-mm-dd format
@@ -210,6 +196,72 @@ define([
       }
 
       /**
+       * Callback after 'Generate room URL' button is clicked.
+       */
+      function gapiLoaded() {
+        gapi.load('client', initializeGapiClient);
+      }
+
+      /**
+       * Callback after the API client is loaded. Loads the
+       * discovery doc to initialize the API.
+       */
+      async function initializeGapiClient() {
+        await gapi.client.init({
+          apiKey: apiKey,
+          discoveryDocs: discoveryDocs,
+        });
+        gapiInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Callback after 'Generate room URL' button is clicked.
+       */
+      function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({ // eslint-disable-line no-undef
+          client_id: clientId,
+          scope: scope,
+          callback: '', // defined later
+        });
+        gisInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Enables user interaction after all libraries are loaded.
+       */
+      function maybeEnableButtons() {
+        if (gapiInited && gisInited) {
+          generateUrlRoomButton.onclick = handleAuthClick;
+          generateUrlRoomButton.disabled = false;
+          return;
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw (resp);
+          }
+          handleCreateEvent();
+          return;
+        };
+
+        if (gapi.client.getToken() === null) {
+          // Prompt the user to select a Google Account and ask for consent to share their data
+          // when establishing a new session.
+          tokenClient.requestAccessToken({prompt: 'consent'});
+        } else {
+          // Skip display of account chooser and consent dialog for an existing session.
+          tokenClient.requestAccessToken({prompt: ''});
+        }
+      }
+
+      /**
        * Initializes the creation of the event in Google Calendar
        */
       function handleCreateEvent() {
@@ -218,12 +270,10 @@ define([
         if (!validate()) {
           return;
         }
-
-        gapi.auth2.getAuthInstance().signIn({prompt: 'select_account'}).then(function() {
-          createEvent();
-          return;
-        }).catch();
+        createEvent();
+        return;
       }
+      // End new GSI process
 
       /**
        * Displays loading
@@ -388,7 +438,8 @@ define([
       /**
        *  On load, called to load the auth2 library and API client library.
        */
-      gapi.load('client:auth2', initClient);
+      gapiLoaded();
+      gisLoaded();
     }
   };
 });

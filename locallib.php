@@ -227,6 +227,8 @@ function googlemeet_print_recordings($googlemeet, $cm, $context) {
             'redordingname' => $redordingname
         ]);
 
+        $PAGE->requires->js(new moodle_url('https://accounts.google.com/gsi/client'), true);
+
         $PAGE->requires->js_call_amd('mod_googlemeet/view', 'init', [
             $config->clientid,
             $config->apikey,
