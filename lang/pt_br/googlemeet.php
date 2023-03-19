@@ -25,10 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['apikey'] = 'Chave de API';
+$string['issuerid'] = 'Serviço OAuth';
+$string['issuerid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID" target="_blank">How to create the API key and OAuth client ID</a>';
+// $string['apikey'] = 'Chave de API';
 $string['checkweekdays'] = 'Selecione os dias da semana que se enquadram no intervalo de datas selecionado.';
-$string['clientid'] = 'ID do cliente OAuth';
-$string['clientid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/Como-criar-a-chave-de-API-e-o-ID-do-cliente-OAuth" target="_blank">Como criar a chave de API e o ID do cliente OAuth</a>';
+// $string['clientid'] = 'ID do cliente OAuth';
+// $string['clientid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/Como-criar-a-chave-de-API-e-o-ID-do-cliente-OAuth" target="_blank">Como criar a chave de API e o ID do cliente OAuth</a>';
 $string['date'] = 'Data';
 $string['duration'] = 'Duração';
 $string['earlierto'] = 'A data do evento não pode ser anterior à data de início do curso ({$a}).';

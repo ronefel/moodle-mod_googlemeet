@@ -1,8 +1,14 @@
+/* eslint-disable */
+
 define([
   'core/notification',
-  'core/str',
-  'mod_googlemeet/gapi'
-], function(notification, str, gapi) {
+  'core/str'
+], function(notification, str) {
+
+  window.requirejs.config({
+    paths: 'https://accounts.google.com/gsi/client'
+  })
+
   return {
     init: function(clientId, apiKey, userTimeZone) {
       // Array of API discovery doc URLs for APIs used by the quickstart
@@ -44,11 +50,12 @@ define([
        */
       function initClient() {
         gapi.client.init({
-          apiKey: apiKey,
-          clientId: clientId,
-          discoveryDocs: discoveryDocs,
-          scope: scope
+          // apiKey: apiKey,
+          // clientId: clientId,
+          // discoveryDocs: discoveryDocs,
+          // scope: scope
         }).then(function() {
+          gapi.client.load
           generateUrlRoomButton.onclick = handleCreateEvent;
           generateUrlRoomButton.disabled = false;
           return;
@@ -388,7 +395,31 @@ define([
       /**
        *  On load, called to load the auth2 library and API client library.
        */
-      gapi.load('client:auth2', initClient);
+      // gapi.load('client', initClient);
+
+      let access_token = '';
+      let client = google.accounts.oauth2.initTokenClient({
+        client_id: clientId,
+        scope: scope,
+        ux_mode: 'popup',
+        callback: (response) => {
+          var code_receiver_uri = 'YOUR_AUTHORIZATION_CODE_ENDPOINT_URI';
+          // Send auth code to your backend platform
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', code_receiver_uri, true);
+          xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+          xhr.onload = function() {
+            console.log('Signed in as: ' + xhr.responseText);
+          };
+          xhr.send('code=' + response.code);
+          // After receipt, the code is exchanged for an access token and
+          // refresh token, and the platform then updates this web app
+          // running in user's browser with the requested calendar info.
+        },
+      });
+      console.log(client);
+      console.log(access_token);
     }
   };
 });
