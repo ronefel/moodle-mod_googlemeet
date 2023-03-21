@@ -47,13 +47,18 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         global $CFG, $PAGE, $USER;
 
         $config = get_config('googlemeet');
+
+        $client = new client();        
+
+        $logout = optional_param('logout', 0, PARAM_BOOL);
+
+        if($logout) {
+            $client->logout();
+        }
         
         $mform = $this->_form;
 
-        $client = new client();
-        $userauth = $client->get_user_oauth_client();
-
-        if(!$userauth->is_logged_in()){
+        if(!$client->check_login() && empty($this->current->instance)) {
             echo '<style>
                 .fcontainer, .form-group {
                     pointer-events: none;
@@ -61,9 +66,9 @@ class mod_googlemeet_mod_form extends moodleform_mod {
                 }
             </style>';
             $mform->addElement('html', $client->print_login_popup());
-        } else {                        
+        } else if(empty($this->current->instance)) {                        
 
-            $mform->addElement('html', $client->print_user_info());
+            $mform->addElement('html', $client->print_user_info('calendar'));
         }
         // Adding the "general" fieldset, where all the common settings are shown.
         $mform->addElement('header', 'general', get_string('general', 'form'));

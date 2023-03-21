@@ -40,8 +40,10 @@
     width: 72px;
 }
 
-#googlemeet_picture-user:hover {
+#googlemeet_picture-user:hover,
+#googlemeet_picture-user:focus {
     background-color: rgba(60,64,67,.08);
+    box-shadow: none;
 }
 
 #googlemeet_picture-user > img {

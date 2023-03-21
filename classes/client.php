@@ -23,7 +23,6 @@ use popup_action;
 use single_button;
 use moodle_url;
 use dml_missing_record_exception;
-use stdClass;
 
 /**
  * Oauth Client for mod_googlemeet.
@@ -74,7 +73,7 @@ class client {
      *
      * @return \core\oauth2\client
      */
-    public function get_user_oauth_client() {
+    protected function get_user_oauth_client() {
         if ($this->client) {
             return $this->client;
         }        
@@ -103,7 +102,7 @@ class client {
         $state = $url->get_param('state') . '&reloadparent=true';
         $url->param('state', $state);
 
-        $button = new single_button($url, get_string('generateurlroom', 'googlemeet'), 'post', true);
+        $button = new single_button($url, 'Log in to your Google account', 'post', true);  // stringar
         $button->add_action(new popup_action('click', $url, 'Login'));
         $button->class = 'mdl-align';
         $button = $OUTPUT->render($button);
@@ -115,36 +114,87 @@ class client {
     /**
      * Print user info.
      *
+     * @param string|null $scope 'calendar' or 'drive' Defines which link will be used.
+     * 
      * @return string HTML code
      */
-    public function print_user_info() {
-        global $OUTPUT;
+    public function print_user_info($scope = null) {
+        global $OUTPUT, $PAGE;
 
         $userauth = $this->get_user_oauth_client(false);
         $userinfo = $userauth->get_userinfo();
+
         $username = $userinfo['username'];
         $name = $userinfo['firstname'].' '.$userinfo['lastname'];
         $userpicture = base64_encode($userinfo['picture']);
+
+        $userurl = '#';
+        if($scope == 'calendar') {
+            $userurl = new moodle_url('https://calendar.google.com/');
+        }
+        if($scope == 'drive') {
+            $userurl = new moodle_url('https://drive.google.com/');
+        }
+
+        $logouturl = new moodle_url($PAGE->url);
+        $logouturl->param('logout', true);
         
         $img = html_writer::img('data:image/jpeg;base64,'.$userpicture, '');
         $out = html_writer::start_div('',['id'=>'googlemeet_auth-info']);
-        $out .= html_writer::link('#', $img, ['id'=>'googlemeet_picture-user']);
+        $out .= html_writer::link($userurl, $img, ['id'=>'googlemeet_picture-user', 'target'=>'_blank', 'title'=>'Manage']); // stringar
         $out .= html_writer::start_div('',['id'=>'googlemeet_user-name']);
-        $out .= html_writer::span('Conta do Google', ''); // stringar
+        $out .= html_writer::span('Conta do Google logada', ''); // stringar
         $out .= html_writer::span($name);
         $out .= html_writer::span($username);
         $out .= html_writer::end_div();
-        $out .= html_writer::link('#', $OUTPUT->pix_icon('logout', '', 'googlemeet', ['class'=>'m-0']), ['class'=>'btn btn-secondary btn-sm']);
-
-        // $out .= $OUTPUT->render(new single_button(new moodle_url('#'), $OUTPUT->pix_icon('logout', '', 'googlemeet')));
+        $out .= html_writer::link($logouturl,
+            $OUTPUT->pix_icon('logout', '', 'googlemeet', ['class'=>'m-0']),
+            ['class'=>'btn btn-secondary btn-sm', 'title'=>'Logout']  // stringar
+        );
 
         $out .= html_writer::end_div();
 
         return $out;
+    }    
+
+    /**
+     * Checks whether the user is authenticate or not.
+     *
+     * @return bool true when logged in.
+     */
+    public function check_login() {
+        $client = $this->get_user_oauth_client();
+        return $client->is_logged_in();
     }
 
     /**
-     * Store the access token.     * 
+     * Logout.
+     *
+     * @return void
+     */
+    public function logout() {
+        global $PAGE;
+
+        if($this->check_login()) {
+            $url = new moodle_url($PAGE->url);
+            $client = $this->get_user_oauth_client();
+            $client->log_out();
+            $js = <<<EOD
+                <html>
+                <head>
+                    <script type="text/javascript">
+                        window.location = '{$url}'.replaceAll('&amp;','&')
+                    </script>
+                </head>
+                <body></body>
+                </html>
+            EOD;
+            die($js);
+        }
+    }
+
+    /**
+     * Store the access token.
      * 
      * @return void
      */
