@@ -255,3 +255,12 @@ function googlemeet_list_recordings($params) {
 
     return $formattedrecordings;
 }
+
+/**
+ * Get icon mapping for font-awesome.
+ */
+function mod_googlemeet_get_fontawesome_icon_map() {
+    return [
+        'mod_googlemeet:logout' => 'fa-sign-out'
+    ];
+}

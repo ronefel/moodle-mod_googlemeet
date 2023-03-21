@@ -92,6 +92,8 @@ class client {
      * Print the login in a popup.
      *
      * @param array|null $attr Custom attributes to be applied to popup div.
+     * 
+     * @return string HTML code
      */
     public function print_login_popup($attr = null) {
         global $OUTPUT;
@@ -111,7 +113,40 @@ class client {
     }
 
     /**
-     * Store the access token.
+     * Print user info.
+     *
+     * @return string HTML code
+     */
+    public function print_user_info() {
+        global $OUTPUT;
+
+        $userauth = $this->get_user_oauth_client(false);
+        $userinfo = $userauth->get_userinfo();
+        $username = $userinfo['username'];
+        $name = $userinfo['firstname'].' '.$userinfo['lastname'];
+        $userpicture = base64_encode($userinfo['picture']);
+        
+        $img = html_writer::img('data:image/jpeg;base64,'.$userpicture, '');
+        $out = html_writer::start_div('',['id'=>'googlemeet_auth-info']);
+        $out .= html_writer::link('#', $img, ['id'=>'googlemeet_picture-user']);
+        $out .= html_writer::start_div('',['id'=>'googlemeet_user-name']);
+        $out .= html_writer::span('Conta do Google', ''); // stringar
+        $out .= html_writer::span($name);
+        $out .= html_writer::span($username);
+        $out .= html_writer::end_div();
+        $out .= html_writer::link('#', $OUTPUT->pix_icon('logout', '', 'googlemeet', ['class'=>'m-0']), ['class'=>'btn btn-secondary btn-sm']);
+
+        // $out .= $OUTPUT->render(new single_button(new moodle_url('#'), $OUTPUT->pix_icon('logout', '', 'googlemeet')));
+
+        $out .= html_writer::end_div();
+
+        return $out;
+    }
+
+    /**
+     * Store the access token.     * 
+     * 
+     * @return void
      */
     public function callback() {
         $client = $this->get_user_oauth_client();

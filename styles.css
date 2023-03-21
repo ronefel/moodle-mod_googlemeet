@@ -20,6 +20,62 @@
     width: 100%;
 }
 
+#googlemeet_auth-info {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+
+#googlemeet_picture-user {
+    color: #000;
+    cursor: pointer;
+    text-decoration: none;
+	padding: 4px;
+	border-radius: 50%;
+	display: inline-block;
+    outline: none;
+    vertical-align: middle;
+    box-sizing: border-box;
+    height: 72px;
+    width: 72px;
+}
+
+#googlemeet_picture-user:hover {
+    background-color: rgba(60,64,67,.08);
+}
+
+#googlemeet_picture-user > img {
+    background-size: 64px 64px;
+    border: 0;
+    border-radius: 50%;
+    display: block;
+    margin: 0px;
+    position: relative;
+    height: 64px;
+    width: 64px;
+    z-index: 0;
+}
+
+#googlemeet_picture-user > img:hover {
+    box-shadow: 0 1px 0 rgba(0,0,0,.15);
+}
+
+#googlemeet_user-name {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    margin-right: 20px;
+    line-height: 1;
+}
+
+#googlemeet_user-name span:nth-child(1) {
+    font-size: 8pt;
+}
+
+#googlemeet_user-name span:nth-child(2) {
+    font-weight: 500;
+}
+
 #page-admin-setting-modsettinggooglemeet .form-item:last-child .form-description {
     margin-left: -200px;
 }
