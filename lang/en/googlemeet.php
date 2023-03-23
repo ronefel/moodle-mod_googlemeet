@@ -123,6 +123,7 @@ $string['roomname'] = 'Room name';
 $string['roomurl'] = 'Room url';
 $string['roomurlexpanded'] = 'Room url expanded';
 $string['roomurlexpanded_desc'] = 'Show the "Room url" settings as expanded by default when creating new Room.';
+$string['servicenotenabled'] = 'Access not configured. Make sure the \'Drive API\' and \'Calendar API\' services are enabled.';
 $string['show'] = 'Show';
 $string['strftimedm'] = '%a. %d %b.';
 $string['strftimedmy'] = '%a. %d %b. %Y';
