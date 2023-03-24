@@ -16,6 +16,7 @@
 
 namespace mod_googlemeet;
 
+use moodle_exception;
 
 /**
  * Helper class for the google docs repository and google calendar events.
@@ -32,17 +33,17 @@ class helper {
      * @param rest $service The rest API object
      * @param string $api The name of the API call
      * @param array $params The parameters required by the API call
+     * @param string $rawpost Parameter to include in the body of a post.
      * @return \stdClass The response object
-     * @throws \repository_exception
+     * @throws moodle_exception
      */
-    public static function request(rest $service, string $api, array $params): ?\stdClass {
+    public static function request(rest $service, string $api, array $params, string $rawpost): ?\stdClass {
         try {
-            // Retrieving files and folders.
-            $response = $service->call($api, $params);
+            $response = $service->call($api, $params, $rawpost);
         } catch (\Exception $e) {
             if ($e->getCode() == 403 && strpos($e->getMessage(), 'Access Not Configured') !== false) {
                 // This is raised when the Drive API service or the Calendar API service has not been enabled on Google APIs control panel.
-                throw new \repository_exception('servicenotenabled', 'mod_googlemeet');
+                throw new moodle_exception('servicenotenabled', 'mod_googlemeet');
             }
             throw $e;
         }

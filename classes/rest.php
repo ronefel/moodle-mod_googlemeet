@@ -44,18 +44,7 @@ class rest extends \core\oauth2\rest {
                 'endpoint' => 'https://www.googleapis.com/calendar/v3/calendars/{calendarid}/events',
                 'method' => 'post',
                 'args' => [
-                    'end' => [
-                        'dateTime' => PARAM_RAW,
-                        'timeZone' => PARAM_TIMEZONE
-                    ],
-                    'start' => [
-                        'dateTime' => PARAM_RAW,
-                        'timeZone' => PARAM_TIMEZONE
-                    ],
-                    'summary' => PARAM_RAW,
-                    'recurrence' => [
-                        PARAM_RAW
-                    ]
+                    'calendarid' => PARAM_RAW
                 ],
                 'response' => 'json'
             ],
@@ -63,11 +52,9 @@ class rest extends \core\oauth2\rest {
                 'endpoint' => 'https://www.googleapis.com/calendar/v3/calendars/{calendarid}/events/{eventid}',
                 'method' => 'patch',
                 'args' => [
-                    'conferenceData' => [
-                        'createRequest' => [
-                            'requestId' => PARAM_RAW
-                        ]
-                    ]
+                    'calendarid' => PARAM_RAW,
+                    'eventid' => PARAM_RAW,
+                    'conferenceDataVersion' => PARAM_RAW
                 ],
                 'response' => 'json'
             ],

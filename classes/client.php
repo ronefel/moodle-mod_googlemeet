@@ -23,6 +23,7 @@ use popup_action;
 use single_button;
 use moodle_url;
 use dml_missing_record_exception;
+use stdClass;
 
 /**
  * Oauth Client for mod_googlemeet.
@@ -97,7 +98,7 @@ class client {
     public function print_login_popup($attr = null) {
         global $OUTPUT;
 
-        $client = $this->get_user_oauth_client(false);
+        $client = $this->get_user_oauth_client();
         $url = new moodle_url($client->get_login_url());
         $state = $url->get_param('state') . '&reloadparent=true';
         $url->param('state', $state);
@@ -121,7 +122,7 @@ class client {
     public function print_user_info($scope = null) {
         global $OUTPUT, $PAGE;
 
-        $userauth = $this->get_user_oauth_client(false);
+        $userauth = $this->get_user_oauth_client();
         $userinfo = $userauth->get_userinfo();
 
         $username = $userinfo['username'];
@@ -203,4 +204,95 @@ class client {
         // This will upgrade to an access token if we have an authorization code and save the access token in the session.
         $client->is_logged_in();
     }
+
+    /**
+     * Create a meeting event in Google Calendar
+     *
+     * @param object $googlemeet An object from the form.
+     * 
+     * @return object Google Calendar event
+     */
+    public function create_meeting_event($googlemeet) {
+        global $USER;
+
+        $calendarid = 'primary';
+        $starthour = str_pad($googlemeet->starthour , 2 , '0' , STR_PAD_LEFT);
+        $startminute = str_pad($googlemeet->startminute , 2 , '0' , STR_PAD_LEFT);
+        $endhour = str_pad($googlemeet->endhour , 2 , '0' , STR_PAD_LEFT);
+        $endminute = str_pad($googlemeet->endminute , 2 , '0' , STR_PAD_LEFT);
+
+        $starttime = $starthour . ':' . $startminute . ':00';
+        $endtime = $endhour . ':' . $endminute . ':00';
+
+        $startdatetime = date('Y-m-d', $googlemeet->eventdate) . 'T' . $starttime;
+        $enddatetime = date('Y-m-d', $googlemeet->eventdate) . 'T' . $endtime;
+
+        $timezone = get_user_timezone($USER->timezone);
+
+        $daysofweek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        $recurrence = '';
+
+        if (isset($googlemeet->addmultiply)) {
+            $interval = 'INTERVAL=' . $googlemeet->period;
+            $until = 'UNTIL=' . date('Ymd', $googlemeet->eventenddate) . 'T235959Z';
+            $byday = 'BYDAY=';
+
+            $daysofweek = new stdClass;
+            $daysofweek->Sun = 'SU';
+            $daysofweek->Mon = 'MO';
+            $daysofweek->Tue = 'TU';
+            $daysofweek->Wed = 'WE';
+            $daysofweek->Thu = 'TH';
+            $daysofweek->Fri = 'FR';
+            $daysofweek->Sat = 'SA';
+
+            foreach ((array) $googlemeet->days as $day => $val) {
+                $byday .= $daysofweek->$day . ',';
+            }
+
+            $recurrence = ['RRULE:FREQ=WEEKLY;' . $interval . ';' . $until . ';' . $byday];
+        }
+
+        $eventrawpost = [
+            'summary' => $googlemeet->name,
+            'start' => [
+                'dateTime' => $startdatetime,
+                'timeZone' => $timezone
+            ],
+            'end' => [
+                'dateTime' => $enddatetime,
+                'timeZone' => $timezone
+            ],
+            'recurrence' => $recurrence
+        ];
+
+        $service = new rest($this->get_user_oauth_client());
+
+        $eventparams = [
+            'calendarid' => $calendarid
+        ];
+
+        $eventresponse = helper::request($service, 'insertevent', $eventparams, json_encode($eventrawpost));
+        
+        $conferenceparams = [
+            'calendarid' => $calendarid,
+            'eventid' => $eventresponse->id,
+            'conferenceDataVersion' => 1
+        ];
+
+        $conferencerawpost = [
+            'conferenceData' => [
+                'createRequest' => [
+                    'requestId' => $eventresponse->id
+                ]
+            ]
+        ];
+
+        $conferenceresponse = helper::request($service, 'createconference', $conferenceparams, json_encode($conferencerawpost));
+
+        return $conferenceresponse;
+
+    }
+
 }

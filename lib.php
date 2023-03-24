@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_googlemeet\client;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -70,18 +72,20 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
+    if (isset($googlemeet->url)) {
+        $url = googlemeet_clear_url($googlemeet->url);
+        if ($url) {
+            $googlemeet->url = $url;
+        }
+    } else {
+        $client = new client();
+        $calendarevent = $client->create_meeting_event($googlemeet);
+        $googlemeet->url = $calendarevent->hangoutLink;
+    }
+
     if (isset($googlemeet->days)) {
         $googlemeet->days = json_encode($googlemeet->days);
     }
-
-    
-
-    // if (isset($googlemeet->url)) {
-    //     $url = googlemeet_clear_url($googlemeet->url);
-    //     if ($url) {
-    //         $googlemeet->url = $url;
-    //     }
-    // }
 
     $googlemeet->timemodified = time();
 
@@ -90,8 +94,9 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     }
 
     if (isset($googlemeet->days)) {
-        $googlemeet->days = json_decode($googlemeet->days);
+        $googlemeet->days = json_decode($googlemeet->days, true);
     }
+    
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
     googlemeet_set_events($events);
