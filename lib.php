@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_googlemeet\client;
+use mod_googlemeet\issuer;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -78,8 +78,8 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
             $googlemeet->url = $url;
         }
     } else {
-        $client = new client();
-        $calendarevent = $client->create_meeting_event($googlemeet);
+        $issuer = new issuer();
+        $calendarevent = $issuer->create_meeting_event($googlemeet);
         $googlemeet->url = $calendarevent->hangoutLink;
     }
 
@@ -272,19 +272,31 @@ function mod_googlemeet_get_fontawesome_icon_map() {
     ];
 }
 
+/**                                                                                                                                 
+ * Callback to get the required scopes for system account.                                                                          
+ *                                                                                                                                  
+ * @param \core\oauth2\issuer $issuer                                                                                               
+ * @return string                                                                                                                   
+ */                                                                                                                                 
+function mod_googlemeet_oauth2_system_scopes(\core\oauth2\issuer $issuer) {                                              
+    if ($issuer->get('id') == get_config('mod_googlemeet', 'issuerid')) {                                                
+        return 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/calendar.events';                                                                             
+    }                                                                                                                               
+    return '';                                                                                                                      
+}
+
 /**
  * Synchronizes Google Drive recordings with the database.
  *
  * @param int $googlemeetid the googlemeet ID
- * @param string $creatoremail the room creator email
  * @param array $files the array of recordings
- * @param int $coursemoduleid the course module ID
  * @return array of recordings
  */
-function sync_recordings($googlemeetid, $creatoremail, $files, $coursemoduleid) {
+function sync_recordings($googlemeetid, $files) {
     global $DB;
 
-    $context = context_module::instance($coursemoduleid);
+    $cm = get_coursemodule_from_instance('googlemeet', $googlemeetid, 0, false, MUST_EXIST);
+    $context = context_module::instance($cm->id);
     require_capability('mod/googlemeet:syncgoogledrive', $context);
 
     $googlemeetrecordings = $DB->get_records('googlemeet_recordings', ['googlemeetid' => $googlemeetid]);
@@ -297,7 +309,7 @@ function sync_recordings($googlemeetid, $creatoremail, $files, $coursemoduleid) 
     $deleterecordings = [];
 
     foreach ($files as $file) {
-        if (in_array($file['recordingId'], $recordingids, true)) {
+        if (in_array($file->recordingId, $recordingids, true)) {
             array_push($updaterecordings, $file);
         } else {
             array_push($insertrecordings, $file);
@@ -318,12 +330,12 @@ function sync_recordings($googlemeetid, $creatoremail, $files, $coursemoduleid) 
         foreach ($updaterecordings as $updaterecording) {
             $recording = $DB->get_record('googlemeet_recordings', [
                 'googlemeetid' => $googlemeetid,
-                'recordingid' => $updaterecording['recordingId']
+                'recordingid' => $updaterecording->recordingId
             ]);
 
-            $recording->createdtime     = $updaterecording['createdTime'];
-            $recording->duration        = $updaterecording['duration'];
-            $recording->webviewlink     = $updaterecording['webViewLink'];
+            $recording->createdtime     = $updaterecording->createdTime;
+            $recording->duration        = $updaterecording->duration;
+            $recording->webviewlink     = $updaterecording->webViewLink;
             $recording->timemodified    = time();
 
             $DB->update_record('googlemeet_recordings', $recording);
@@ -340,11 +352,11 @@ function sync_recordings($googlemeetid, $creatoremail, $files, $coursemoduleid) 
         foreach ($insertrecordings as $insertrecording) {
             $recording = new stdClass();
             $recording->googlemeetid      = $googlemeetid;
-            $recording->recordingid     = $insertrecording['recordingId'];
-            $recording->name            = $insertrecording['name'];
-            $recording->createdtime     = $insertrecording['createdTime'];
-            $recording->duration        = $insertrecording['duration'];
-            $recording->webviewlink     = $insertrecording['webViewLink'];
+            $recording->recordingid     = $insertrecording->recordingId;
+            $recording->name            = $insertrecording->name;
+            $recording->createdtime     = $insertrecording->createdTime;
+            $recording->duration        = $insertrecording->duration;
+            $recording->webviewlink     = $insertrecording->webViewLink;
             $recording->timemodified    = time();
 
             array_push($recordings, $recording);
@@ -354,10 +366,6 @@ function sync_recordings($googlemeetid, $creatoremail, $files, $coursemoduleid) 
 
         $googlemeetrecord = $DB->get_record('googlemeet', ['id' => $googlemeetid]);
         $googlemeetrecord->lastsync = time();
-
-        if (!$googlemeetrecord->creatoremail) {
-            $googlemeetrecord->creatoremail = $creatoremail;
-        }
 
         $DB->update_record('googlemeet', $googlemeetrecord);
     }

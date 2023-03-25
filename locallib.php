@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-use mod_googlemeet\client;
+use mod_googlemeet\issuer;
 
 require_once("$CFG->dirroot/mod/googlemeet/lib.php");
 
@@ -223,23 +223,21 @@ function googlemeet_print_recordings($googlemeet, $cm, $context) {
             $redordingname .= get_string('or', 'googlemeet') . ' "' . $googlemeet->originalname . '"';
         }
 
-        $client = new client();
-        $loginhtml = '';
-        $islogged = false;
-        if(!$client->check_login()) {
-            $loginhtml = $client->print_login_popup();
-        } else {
-            $loginhtml = $client->print_user_info('drive');
-            $islogged = true;
-        }
+        $issuer = new issuer();
+        if($issuer->check_login()){
+            $url = new moodle_url($PAGE->url);
+            $url->param('sync', true);
 
-        $html .= $OUTPUT->render_from_template('mod_googlemeet/syncbutton', [
-            'lastsync' => $lastsync,
-            'creatoremail' => $googlemeet->creatoremail,
-            'redordingname' => $redordingname,
-            'login' => $loginhtml,
-            'islogged' => $islogged
-        ]);
+            $syncbutton = new single_button($url, get_string('syncwithgoogledrive', 'googlemeet'), 'post', true);
+            $syncbutton = $OUTPUT->render($syncbutton);
+
+            $html .= $OUTPUT->render_from_template('mod_googlemeet/syncbutton', [
+                'lastsync' => $lastsync,
+                'creatoremail' => $googlemeet->creatoremail,
+                'redordingname' => $redordingname,
+                'syncbutton' => $syncbutton
+            ]);
+        }
     }
 
     $html .= '</div>';

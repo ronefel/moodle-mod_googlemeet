@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use mod_googlemeet\client;
+use mod_googlemeet\issuer;
 
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
@@ -44,31 +44,24 @@ class mod_googlemeet_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG, $PAGE, $USER;
+        global $CFG;
 
         $config = get_config('googlemeet');
 
-        $client = new client();        
-
-        $logout = optional_param('logout', 0, PARAM_BOOL);
-        if($logout) {
-            $client->logout();
-        }
+        $issuer = new issuer();        
         
         $mform = $this->_form;
 
-        if(!$client->check_login() && empty($this->current->instance)) {
+        if(!$issuer->check_login() && empty($this->current->instance)) {
             echo '<style>
                 .fcontainer, .form-group {
                     pointer-events: none;
                     opacity: 0.4;
                 }
             </style>';
-            $mform->addElement('html', $client->print_login_popup());
-        } else if(empty($this->current->instance)) {                        
+            $mform->addElement('html', 'O sistema não está logado!'); //stringar
+        } 
 
-            $mform->addElement('html', $client->print_user_info('calendar'));
-        }
         // Adding the "general" fieldset, where all the common settings are shown.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -170,57 +163,29 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $mform->addGroup($eventenddategroup, 'eventenddategroup', get_string('repeatuntil', 'googlemeet'), [''], false);
         $mform->disabledIf('eventenddategroup', 'addmultiply', 'notchecked');
 
-        $mform->addElement('header', 'headerroomurl', get_string('roomurl', 'googlemeet'));
-        if (!empty($config->roomurlexpanded)) {
-            $mform->setExpanded('headerroomurl');
-        }
-
         if ($config->issuerid > 0) {
-            if (empty($this->current->instance)) {
-                // $generateurlgroup = [
-                //     $mform->createElement('text', 'url_viewer', '', ['size' => '30', 'readonly' => true]),
+            // if (empty($this->current->instance)) {
+            //     // $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
+            //     // $mform->setType('url_viewer', PARAM_URL);
+            //     // $mform->setType('url', PARAM_URL);
+            //     // $mform->setType('originalname', PARAM_TEXT);
+            //     // $mform->setType('creatoremail', PARAM_EMAIL);
 
-                //     // $mform->createElement(
-                //     //     'button',
-                //     //     'generateurlroom',
-                //     //     get_string('generateurlroom', 'googlemeet'),
-                //     //     ['disabled' => true]
-                //     // ),
-                    
-                //     // $mform->createElement('html', $client->print_login_popup()),
-                //     $mform->createElement('html', '<span id="generateurlroomLoading"></span>'),
-
-                //     $mform->createElement('html', '<div style="width: 100%;">
-                //         <pre id="googlemeetcontentlog"></pre>
-                //     </div>'),
-
-                //     $mform->createElement('hidden', 'url', null, ['id' => 'id_url']),
-                //     $mform->createElement('hidden', 'originalname', null, ['id' => 'id_originalname']),
-                //     $mform->createElement('hidden', 'creatoremail', null, ['id' => 'id_creatoremail']),
-                //     $mform->createElement('html',
-                //         '<div id="id_googlemeet_generateurlgroup_error" class="form-control-feedback invalid-feedback"></div>'
-                //     ),
-                // ];
-
-                // $mform->addGroup($generateurlgroup, 'generateurlgroup', get_string('roomurl', 'googlemeet'), [' '], false);
-
-                $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
-                $mform->setType('url_viewer', PARAM_URL);
-                // $mform->setType('url', PARAM_URL);
-                // $mform->setType('originalname', PARAM_TEXT);
-                // $mform->setType('creatoremail', PARAM_EMAIL);
-
-                // $PAGE->requires->js_call_amd('mod_googlemeet/mod_form', 'init', [
-                //     $config->clientid,
-                //     $config->apikey,
-                //     get_user_timezone($USER->timezone)
-                // ]);
-            } else {
-                $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
-                $mform->setType('url_viewer', PARAM_URL);
-                $mform->setDefault('url_viewer', $this->current->url);
-            }
+            //     // $PAGE->requires->js_call_amd('mod_googlemeet/mod_form', 'init', [
+            //     //     $config->clientid,
+            //     //     $config->apikey,
+            //     //     get_user_timezone($USER->timezone)
+            //     // ]);
+            // } else {
+            //     $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
+            //     $mform->setType('url_viewer', PARAM_URL);
+            //     $mform->setDefault('url_viewer', $this->current->url);
+            // }
         } else {
+            $mform->addElement('header', 'headerroomurl', get_string('roomurl', 'googlemeet'));
+            if (!empty($config->roomurlexpanded)) {
+                $mform->setExpanded('headerroomurl');
+            }
             $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), array('size' => '50'));
             $mform->setType('url', PARAM_URL);
             $mform->addRule('url', null, 'required', null, 'client');

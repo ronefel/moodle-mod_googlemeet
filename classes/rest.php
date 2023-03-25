@@ -68,6 +68,15 @@ class rest extends \core\oauth2\rest {
                 ],
                 'response' => 'json'
             ],
+            'create_permission' => [
+                'endpoint' => 'https://www.googleapis.com/drive/v3/files/{fileid}/permissions',
+                'method' => 'post',
+                'args' => [
+                    'fileid' => PARAM_RAW,
+                    'fields' => PARAM_RAW
+                ],
+                'response' => 'json'
+            ]
         ];
     }
 }

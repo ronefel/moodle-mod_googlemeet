@@ -33,11 +33,11 @@ class helper {
      * @param rest $service The rest API object
      * @param string $api The name of the API call
      * @param array $params The parameters required by the API call
-     * @param string $rawpost Optional param to include in the body of a post.
+     * @param string|false $rawpost Optional param to include in the body of a post.
      * @return \stdClass The response object
      * @throws moodle_exception
      */
-    public static function request(rest $service, string $api, array $params, string $rawpost = false): ?\stdClass {
+    public static function request(rest $service, string $api, array $params, string $rawpost): ?\stdClass {
         try {
             $response = $service->call($api, $params, $rawpost);
         } catch (\Exception $e) {
