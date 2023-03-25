@@ -271,3 +271,96 @@ function mod_googlemeet_get_fontawesome_icon_map() {
         'mod_googlemeet:logout' => 'fa-sign-out'
     ];
 }
+
+/**
+ * Synchronizes Google Drive recordings with the database.
+ *
+ * @param int $googlemeetid the googlemeet ID
+ * @param string $creatoremail the room creator email
+ * @param array $files the array of recordings
+ * @param int $coursemoduleid the course module ID
+ * @return array of recordings
+ */
+function sync_recordings($googlemeetid, $creatoremail, $files, $coursemoduleid) {
+    global $DB;
+
+    $context = context_module::instance($coursemoduleid);
+    require_capability('mod/googlemeet:syncgoogledrive', $context);
+
+    $googlemeetrecordings = $DB->get_records('googlemeet_recordings', ['googlemeetid' => $googlemeetid]);
+
+    $recordingids = array_column($googlemeetrecordings, 'recordingid');
+    $fileids = array_column($files, 'recordingId');
+
+    $updaterecordings = [];
+    $insertrecordings = [];
+    $deleterecordings = [];
+
+    foreach ($files as $file) {
+        if (in_array($file['recordingId'], $recordingids, true)) {
+            array_push($updaterecordings, $file);
+        } else {
+            array_push($insertrecordings, $file);
+        }
+    }
+
+    foreach ($googlemeetrecordings as $googlemeetrecording) {
+        if (!in_array($googlemeetrecording->recordingid, $fileids)) {
+            $deleterecordings['id'] = $googlemeetrecording->id;
+        }
+    }
+
+    if ($deleterecordings) {
+        $DB->delete_records('googlemeet_recordings', $deleterecordings);
+    }
+
+    if ($updaterecordings) {
+        foreach ($updaterecordings as $updaterecording) {
+            $recording = $DB->get_record('googlemeet_recordings', [
+                'googlemeetid' => $googlemeetid,
+                'recordingid' => $updaterecording['recordingId']
+            ]);
+
+            $recording->createdtime     = $updaterecording['createdTime'];
+            $recording->duration        = $updaterecording['duration'];
+            $recording->webviewlink     = $updaterecording['webViewLink'];
+            $recording->timemodified    = time();
+
+            $DB->update_record('googlemeet_recordings', $recording);
+        }
+
+        $googlemeetrecord = $DB->get_record('googlemeet', ['id' => $googlemeetid]);
+        $googlemeetrecord->lastsync = time();
+        $DB->update_record('googlemeet', $googlemeetrecord);
+    }
+
+    if ($insertrecordings) {
+        $recordings = [];
+
+        foreach ($insertrecordings as $insertrecording) {
+            $recording = new stdClass();
+            $recording->googlemeetid      = $googlemeetid;
+            $recording->recordingid     = $insertrecording['recordingId'];
+            $recording->name            = $insertrecording['name'];
+            $recording->createdtime     = $insertrecording['createdTime'];
+            $recording->duration        = $insertrecording['duration'];
+            $recording->webviewlink     = $insertrecording['webViewLink'];
+            $recording->timemodified    = time();
+
+            array_push($recordings, $recording);
+        }
+
+        $DB->insert_records('googlemeet_recordings', $recordings);
+
+        $googlemeetrecord = $DB->get_record('googlemeet', ['id' => $googlemeetid]);
+        $googlemeetrecord->lastsync = time();
+
+        if (!$googlemeetrecord->creatoremail) {
+            $googlemeetrecord->creatoremail = $creatoremail;
+        }
+
+        $DB->update_record('googlemeet', $googlemeetrecord);
+    }
+
+    return googlemeet_list_recordings(['googlemeetid' => $googlemeetid]);
+}

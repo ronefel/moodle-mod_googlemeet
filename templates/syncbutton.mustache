@@ -24,26 +24,36 @@
     "redordingname": "Example"
   }
 }}
-<div id="syncbutton">
-  <div>
-    {{# str }} lastsync, mod_googlemeet {{/ str }} <strong><span id="id_lastsync">{{lastsync}}</span></strong>
-  </div>
-  <div>
-    {{# str }} roomcreator, mod_googlemeet {{/ str }} <strong><span id="id_creatoremail">{{creatoremail}}</span></strong>
-  </div>
-  <div>
-    {{# str }} recordingswiththename, mod_googlemeet {{/ str }} <strong>{{redordingname}}</strong>
-  </div>
+<div id="recordings">
+  <div id="syncbutton">
+  {{#islogged}}
+    <div>
+      {{# str }} lastsync, mod_googlemeet {{/ str }} <strong><span id="id_lastsync">{{lastsync}}</span></strong>
+    </div>
+    <div>
+      {{# str }} roomcreator, mod_googlemeet {{/ str }} <strong><span id="id_creatoremail">{{creatoremail}}</span></strong>
+    </div>
+    <div>
+      {{# str }} recordingswiththename, mod_googlemeet {{/ str }} <strong>{{redordingname}}</strong>
+    </div>
 
-  <button
-    class="btn btn-primary ml-0"
-    name="syncdrivebutton"
-    id="id_syncdrivebutton"
-    type="button"
-    disabled
-  >
-    {{# str }} syncwithgoogledrive, mod_googlemeet {{/ str }}
-  </button>
+    <button
+      class="btn btn-primary ml-0"
+      name="syncdrivebutton"
+      id="id_syncdrivebutton"
+      type="button"
+    >
+      {{# str }} syncwithgoogledrive, mod_googlemeet {{/ str }}
+    </button>
+    {{/islogged}}
 
-  <pre id="googlemeetcontentlog"></pre>
+  {{^islogged}}
+    {{{login}}}
+  {{/islogged}}
+  </div>
+  {{#islogged}}
+  <div id="logininfo">
+    {{{login}}}
+  </div>
+  {{/islogged}}
 </div>

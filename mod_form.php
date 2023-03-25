@@ -51,7 +51,6 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $client = new client();        
 
         $logout = optional_param('logout', 0, PARAM_BOOL);
-
         if($logout) {
             $client->logout();
         }

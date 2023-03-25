@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+use mod_googlemeet\client;
+
 require_once("$CFG->dirroot/mod/googlemeet/lib.php");
 
 /**
@@ -221,19 +223,22 @@ function googlemeet_print_recordings($googlemeet, $cm, $context) {
             $redordingname .= get_string('or', 'googlemeet') . ' "' . $googlemeet->originalname . '"';
         }
 
+        $client = new client();
+        $loginhtml = '';
+        $islogged = false;
+        if(!$client->check_login()) {
+            $loginhtml = $client->print_login_popup();
+        } else {
+            $loginhtml = $client->print_user_info('drive');
+            $islogged = true;
+        }
+
         $html .= $OUTPUT->render_from_template('mod_googlemeet/syncbutton', [
             'lastsync' => $lastsync,
             'creatoremail' => $googlemeet->creatoremail,
-            'redordingname' => $redordingname
-        ]);
-
-        $PAGE->requires->js_call_amd('mod_googlemeet/view', 'init', [
-            $config->clientid,
-            $config->apikey,
-            $googlemeet,
-            googlemeet_has_recording($googlemeet->id),
-            $cm->id,
-            has_capability('mod/googlemeet:editrecording', $context)
+            'redordingname' => $redordingname,
+            'login' => $loginhtml,
+            'islogged' => $islogged
         ]);
     }
 

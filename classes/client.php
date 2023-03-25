@@ -295,4 +295,58 @@ class client {
 
     }
 
+    /**
+     * Get recordings from Google Drive and sync with database.
+     *
+     * @return void
+     */
+    public function syncrecordings($googlemeet) {
+        global $PAGE;
+
+        if($this->check_login()) {
+            $service = new rest($this->get_user_oauth_client());
+
+            $folderparams = [
+                'q' => 'name="Meet Recordings" and trashed = false and mimeType = "application/vnd.google-apps.folder" and "me" in owners',
+                'pageSize' => 1000,
+                'fields' => 'nextPageToken, files(id,owners)'
+            ];
+    
+            $folderresponse = helper::request($service, 'list', $folderparams);
+
+            $files = $folderresponse->files;
+            $parents = '';
+            for($i=0; $i < count($files); $i++) {
+                $parents .= 'parents="'.$files[$i]->id.'"';
+                if ($i + 1 < count($files)) {
+                    $parents .= ' or ';
+                  }
+            }
+
+            $meetingCode = substr($googlemeet->url, 24, 12);
+            $name = $googlemeet->name;
+            $recordingparams = [
+                'q' => '(parents="'.$parents.'") and trashed = false and mimeType = "video/mp4" and "me" in owners and (name contains "'.$meetingCode.'" or name contains "'.$name.'")',
+                'pageSize' => 1000,
+                'fields' => 'files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink)'
+            ];
+    
+            $recordingresponse = helper::request($service, 'list', $recordingparams);
+
+
+            $url = new moodle_url($PAGE->url);
+            $js = <<<EOD
+                <html>
+                <head>
+                    <script type="text/javascript">
+                        window.location = '{$url}'.replaceAll('&amp;','&')
+                    </script>
+                </head>
+                <body></body>
+                </html>
+            EOD;
+            die($js);
+        }
+    }
+
 }
