@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_googlemeet\issuer;
+use mod_googlemeet\client;
 
 require(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
@@ -52,10 +52,14 @@ $PAGE->set_url('/mod/googlemeet/view.php', array('id' => $cm->id));
 $PAGE->set_context($context);
 
 if(has_capability('mod/googlemeet:editrecording', $context)){
+    $client = new client(); 
+    $logout = optional_param('logout', 0, PARAM_BOOL);
+    if($logout) {
+        $client->logout();
+    }
     $sync = optional_param('sync', 0, PARAM_BOOL);
     if($sync) {
-        $issuer = new issuer(); 
-        $issuer->syncrecordings($googlemeet);
+        $client->syncrecordings($googlemeet);
     }
 }
 

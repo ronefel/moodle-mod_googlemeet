@@ -24,15 +24,26 @@
     "redordingname": "Example"
   }
 }}
-<div id="syncbutton">
-  <div>
-    {{# str }} lastsync, mod_googlemeet {{/ str }} <strong><span id="id_lastsync">{{lastsync}}</span></strong>
-  </div>
-  <div>
-    {{# str }} recordingswiththename, mod_googlemeet {{/ str }} <strong>{{redordingname}}</strong>
-  </div>
+<div id="recordings">
+  <div id="syncbutton">
+    {{#islogged}}
+      <div>
+        {{# str }} lastsync, mod_googlemeet {{/ str }} <strong><span id="id_lastsync">{{lastsync}}</span></strong>
+      </div>
+      <div>
+        {{# str }} recordingswiththename, mod_googlemeet {{/ str }} <strong>{{redordingname}}</strong>
+      </div>
 
-  {{{syncbutton}}}
+      {{{syncbutton}}}
+    {{/islogged}}
 
- 
+    {{^islogged}}
+      {{{login}}}
+    {{/islogged}}
+  </div>
+  {{#islogged}}
+    <div id="logininfo">
+      {{{login}}}
+    </div>
+  {{/islogged}}
 </div>

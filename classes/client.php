@@ -19,6 +19,9 @@ namespace mod_googlemeet;
 defined('MOODLE_INTERNAL') || die();
 
 use DateTime;
+use html_writer;
+use popup_action;
+use single_button;
 use moodle_url;
 use dml_missing_record_exception;
 use stdClass;
@@ -30,13 +33,13 @@ use stdClass;
  * @copyright   2023 Rone Santos <ronefel@hotmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class issuer {
+class client {
 
-    // /**
-    //  * OAuth 2 client
-    //  * @var \core\oauth2\client
-    //  */
-    // private $client = null;
+    /**
+     * OAuth 2 client
+     * @var \core\oauth2\client
+     */
+    private $client = null;
 
     /**
      * OAuth 2 Issuer
@@ -45,10 +48,9 @@ class issuer {
     private $issuer = null;
 
     /**
-     * Force disable googlemeet instance
-     *  @var bool
+     * Additional scopes required for drive.
      */
-    private $disabled = false;
+    const SCOPES = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/calendar.events';
 
     /**
      * Constructor.
@@ -60,24 +62,148 @@ class issuer {
         try {
             $this->issuer = \core\oauth2\api::get_issuer(get_config('googlemeet', 'issuerid'));
         } catch (dml_missing_record_exception $e) {
-            $this->disabled = true;
+            die('disabled');
         }
 
         if ($this->issuer && !$this->issuer->get('enabled')) {
-            $this->disabled = true;
+            die('disabled');
         }
     }
 
     /**
-     * Checks whether the system is authenticated or not.
+     * Get a cached user authenticated oauth client.
+     *
+     * @return \core\oauth2\client
+     */
+    protected function get_user_oauth_client() {
+        if ($this->client) {
+            return $this->client;
+        }        
+
+        $returnurl = new moodle_url('/mod/googlemeet/callback.php');
+        $returnurl->param('callback', 'yes');
+        $returnurl->param('sesskey', sesskey());
+
+        $this->client = \core\oauth2\api::get_user_oauth_client($this->issuer, $returnurl, self::SCOPES, true);
+
+        return $this->client;
+    }
+
+    /**
+     * Print the login in a popup.
+     *
+     * @param array|null $attr Custom attributes to be applied to popup div.
+     * 
+     * @return string HTML code
+     */
+    public function print_login_popup($attr = null) {
+        global $OUTPUT;
+
+        $client = $this->get_user_oauth_client();
+        $url = new moodle_url($client->get_login_url());
+        $state = $url->get_param('state') . '&reloadparent=true';
+        $url->param('state', $state);
+
+        $button = new single_button($url, get_string('logintoaccount', 'googlemeet'), 'post', true);
+        $button->add_action(new popup_action('click', $url, 'Login'));
+        $button->class = 'mdl-align';
+        $button = $OUTPUT->render($button);
+
+        return html_writer::div($button, '', $attr);
+
+    }
+
+    /**
+     * Print user info.
+     *
+     * @param string|null $scope 'calendar' or 'drive' Defines which link will be used.
+     * 
+     * @return string HTML code
+     */
+    public function print_user_info($scope = null) {
+        global $OUTPUT, $PAGE;
+
+        $userauth = $this->get_user_oauth_client();
+        $userinfo = $userauth->get_userinfo();
+
+        $username = $userinfo['username'];
+        $name = $userinfo['firstname'].' '.$userinfo['lastname'];
+        $userpicture = base64_encode($userinfo['picture']);
+
+        $userurl = '#';
+        if($scope == 'calendar') {
+            $userurl = new moodle_url('https://calendar.google.com/');
+        }
+        if($scope == 'drive') {
+            $userurl = new moodle_url('https://drive.google.com/');
+        }
+
+        $logouturl = new moodle_url($PAGE->url);
+        $logouturl->param('logout', true);
+        
+        $img = html_writer::img('data:image/jpeg;base64,'.$userpicture, '');
+        $out = html_writer::start_div('',['id'=>'googlemeet_auth-info']);
+        $out .= html_writer::link($userurl, $img, ['id'=>'googlemeet_picture-user', 'target'=>'_blank', 'title'=>get_string('manage', 'googlemeet')]);
+        $out .= html_writer::start_div('',['id'=>'googlemeet_user-name']);
+        $out .= html_writer::span(get_string('loggedinaccount', 'googlemeet'), '');
+        $out .= html_writer::span($name);
+        $out .= html_writer::span($username);
+        $out .= html_writer::end_div();
+        $out .= html_writer::link($logouturl,
+            $OUTPUT->pix_icon('logout', '', 'googlemeet', ['class'=>'m-0']),
+            ['class'=>'btn btn-secondary btn-sm', 'title'=>get_string('logout', 'googlemeet')]
+        );
+
+        $out .= html_writer::end_div();
+
+        return $out;
+    }    
+
+    /**
+     * Checks whether the user is authenticate or not.
      *
      * @return bool true when logged in.
      */
     public function check_login() {
-        if(\core\oauth2\api::get_system_oauth_client($this->issuer) === false){
-            return false;
+        $client = $this->get_user_oauth_client();
+        return $client->is_logged_in();
+    }
+
+    /**
+     * Logout.
+     *
+     * @return void
+     */
+    public function logout() {
+        global $PAGE;
+
+        if($this->check_login()) {
+            $url = new moodle_url($PAGE->url);
+            $client = $this->get_user_oauth_client();
+            $client->log_out();
+            $js = <<<EOD
+                <html>
+                <head>
+                    <script type="text/javascript">
+                        window.location = '{$url}'.replaceAll('&amp;','&')
+                    </script>
+                </head>
+                <body></body>
+                </html>
+            EOD;
+            die($js);
         }
-        return true;
+    }
+
+    /**
+     * Store the access token.
+     * 
+     * @return void
+     */
+    public function callback() {
+        $client = $this->get_user_oauth_client();
+        // This will upgrade to an access token if we have an authorization code and save the access token in the session.
+        $client->is_logged_in();
     }
 
     /**
@@ -103,6 +229,8 @@ class issuer {
         $enddatetime = date('Y-m-d', $googlemeet->eventdate) . 'T' . $endtime;
 
         $timezone = get_user_timezone($USER->timezone);
+
+        $daysofweek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
         $recurrence = '';
 
@@ -140,7 +268,7 @@ class issuer {
             'recurrence' => $recurrence
         ];
 
-        $service = new rest(\core\oauth2\api::get_system_oauth_client($this->issuer));
+        $service = new rest($this->get_user_oauth_client());
 
         $eventparams = [
             'calendarid' => $calendarid
@@ -177,12 +305,12 @@ class issuer {
         global $PAGE;
 
         if($this->check_login()) {
-            $service = new rest(\core\oauth2\api::get_system_oauth_client($this->issuer));
+            $service = new rest($this->get_user_oauth_client());
 
             $folderparams = [
-                'q' => 'name="Meet Recordings" and trashed = false and mimeType = "application/vnd.google-apps.folder"',
+                'q' => 'name="Meet Recordings" and trashed = false and mimeType = "application/vnd.google-apps.folder" and "me" in owners',
                 'pageSize' => 1000,
-                'fields' => 'files(id,owners)'
+                'fields' => 'nextPageToken, files(id,owners)'
             ];
     
             $folderresponse = helper::request($service, 'list', $folderparams, false);
@@ -199,9 +327,9 @@ class issuer {
             $meetingCode = substr($googlemeet->url, 24, 12);
             $name = $googlemeet->name;
             $recordingparams = [
-                'q' => '('.$parents.') and trashed = false and mimeType = "video/mp4" and (name contains "'.$meetingCode.'" or name contains "'.$name.'")',
+                'q' => '('.$parents.') and trashed = false and mimeType = "video/mp4" and "me" in owners and (name contains "'.$meetingCode.'" or name contains "'.$name.'")',
                 'pageSize' => 1000,
-                'fields' => 'files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink,owners)'
+                'fields' => 'files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink)'
             ];
     
             $recordingresponse = helper::request($service, 'list', $recordingparams, false);
@@ -211,8 +339,6 @@ class issuer {
             if ($recordings && count($recordings) > 0) {
                 for ($i = 0; $i < count($recordings); $i++) {
                     $recording = $recordings[$i];
-
-                    // Add "Anyone with the link" permission on video file
                     if (!array_search('anyoneWithLink', $recording->permissionIds)) {
                         $permissionparams = [
                             'fileid' => $recording->id,
@@ -226,67 +352,21 @@ class issuer {
                     }
 
                     //Format it into a human-readable time.
-                    $duration = date("H:i:s", floor((int)$recording->videoMediaMetadata->durationMillis / 1000));
+                    $duration = $this->formatSeconds((int)$recording->videoMediaMetadata->durationMillis);
 
                     $createdTime = new DateTime($recording->createdTime);
 
                     $recordings[$i]->recordingId = $recording->id;
                     $recordings[$i]->duration = $duration;
                     $recordings[$i]->createdTime = $createdTime->getTimestamp();
-                    $recordings[$i]->creatoremail = $recording->owners[0]->emailAddress;
 
                     unset($recordings[$i]->id);
                     unset($recordings[$i]->permissionIds);
                     unset($recordings[$i]->videoMediaMetadata);
-                    unset($recordings[$i]->owners);
                 }
 
                 sync_recordings($googlemeet->id, $recordings);
             }
-
-                // sync_recordings($googlemeet->id, );
-
-            //     Ajax.call([{
-            //         methodname: 'mod_googlemeet_sync_recordings',
-            //         args: {
-            //         googlemeetid: googlemeet.id,
-            //         creatoremail: ownerEmail,
-            //         files: files,
-            //         coursemoduleid: courseModuleId
-            //         }
-            //     }])[0].then(function(response) {
-            //         renderTemplate(response);
-            //         hasRecording = true;
-            //         return;
-            //     }).fail(Notification.exception).fail(function() {
-            //         showLoading(false);
-            //     });
-
-            //     } else {
-            //     $notfoundmsg = notfoundrecordingname + ' "' + meetingCode + '" ';
-            //     if (googlemeet.originalname) {
-            //         notfoundmsg += stror + ' "' + googlemeet.originalname + '"';
-            //     }
-            //     appendPre(notfoundmsg);
-            //     showLoading(false);
-
-            //     if (hasRecording) {
-            //         showLoading(true);
-            //         Ajax.call([{
-            //         methodname: 'mod_googlemeet_delete_all_recordings',
-            //         args: {
-            //             googlemeetid: googlemeet.id,
-            //             coursemoduleid: courseModuleId
-            //         }
-            //         }])[0].then(function(response) {
-            //         renderTemplate(response);
-            //         hasRecording = false;
-            //         showLoading(false);
-            //         return;
-            //         }).fail(Notification.exception).fail(function() {
-            //         showLoading(false);
-            //         });
-            //     }
 
 
             $url = new moodle_url($PAGE->url);
@@ -301,6 +381,29 @@ class issuer {
                 </html>
             EOD;
             die($js);
+        }
+    }
+
+    /**
+     * Create a meeting event in Google Calendar
+     *
+     * @param int $milli The time in milliseconds.
+     * 
+     * @return string The formatted time
+     */
+    protected function formatSeconds($milli=0){
+        $secs = $milli / 1000;
+        
+        if($secs < MINSECS){
+            return '0:'. str_pad(floor($secs), 2, "0", STR_PAD_LEFT);
+        }
+        else if($secs >= MINSECS && $secs < HOURSECS){
+            return floor($secs / MINSECS) .':'. str_pad(floor($secs % MINSECS), 2, "0", STR_PAD_LEFT);
+        }
+        else {
+            return floor($secs / HOURSECS) .':'. 
+                str_pad(floor(($secs % HOURSECS) / MINSECS), 2, "0", STR_PAD_LEFT) .':'. 
+                str_pad(floor(($secs % HOURSECS) % MINSECS), 2, "0", STR_PAD_LEFT);
         }
     }
 

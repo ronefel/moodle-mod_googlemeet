@@ -268,21 +268,9 @@ function googlemeet_list_recordings($params) {
  */
 function mod_googlemeet_get_fontawesome_icon_map() {
     return [
-        'mod_googlemeet:logout' => 'fa-sign-out'
+        'mod_googlemeet:logout' => 'fa-sign-out',
+        'mod_googlemeet:play' => 'fa-play'
     ];
-}
-
-/**                                                                                                                                 
- * Callback to get the required scopes for system account.                                                                          
- *                                                                                                                                  
- * @param \core\oauth2\issuer $issuer                                                                                               
- * @return string                                                                                                                   
- */                                                                                                                                 
-function mod_googlemeet_oauth2_system_scopes(\core\oauth2\issuer $issuer) {                                              
-    if ($issuer->get('id') == get_config('mod_googlemeet', 'issuerid')) {                                                
-        return 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/calendar.events';                                                                             
-    }                                                                                                                               
-    return '';                                                                                                                      
 }
 
 /**

@@ -39,10 +39,10 @@
   <table class="table table-striped table-hover table-bordered">
     <thead>
       <tr>
-        <th>{{# str }} recording, mod_googlemeet {{/ str }}</th>
+        <th style="text-align: center">{{# str }} recording, mod_googlemeet {{/ str }}</th>
         <th>{{# str }} name, mod_googlemeet {{/ str }}</th>
         <th>{{# str }} date, mod_googlemeet {{/ str }}</th>
-        <th>{{# str }} duration, mod_googlemeet {{/ str }}</th>
+        <th style="text-align: center">{{# str }} duration, mod_googlemeet {{/ str }}</th>
         {{#hascapability}}
           <th style="text-align: center">{{# str }} visible, mod_googlemeet {{/ str }}</th>
         {{/hascapability}}
@@ -51,7 +51,7 @@
     <tbody>
       {{#recordings}}
         <tr {{^visible}} class="warning" {{/visible}}>
-          <td>
+          <td style="text-align: center">
             <div>
               <a 
                 href="{{webviewlink}}"
@@ -59,7 +59,7 @@
                 class="btn btn-secondary btn-small ml-0"
                 onclick="this.target='_blank';"
               >
-                {{# str }} play, mod_googlemeet {{/ str }}
+                {{# pix }} play, mod_googlemeet {{/ pix }}
               </a>
             </div>
           </td>
@@ -72,7 +72,7 @@
             {{/hascapability}}
           </td>
           <td>{{createdtimeformatted}}</td>
-          <td>{{duration}}</td>
+          <td style="text-align: center">{{duration}}</td>
           {{#hascapability}}
             <td style="text-align: center">
               <a href="javascript:void(0);" class="recordinghowhide" data-id="{{id}}">

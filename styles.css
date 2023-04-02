@@ -120,6 +120,10 @@
     padding: 0;
 }
 
+#googlemeet_recordings_table .btn .icon {
+    margin-left: .5rem;
+}
+
 #googlemeet_syncimg {
     position: absolute;
     top: 0;
@@ -161,28 +165,6 @@
 #googlemeet_recordings_table .dt-container {
     overflow-x: auto;
     margin: 10px 0;
-}
-
-#googlemeet_recordings_table .dt-container .dt-loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 100%;
-    margin-left: -50%;
-    margin-top: -20px;
-    height: 40px;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background:
-        linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0) 0,
-            rgba(255, 255, 255, 0.9) 25%,
-            rgba(255, 255, 255, 0.9) 75%,
-            rgba(255, 255, 255, 0) 100%
-        );
 }
 
 #googlemeet_recordings_table .dt-bottom {
