@@ -16,16 +16,21 @@
 
 namespace mod_googlemeet;
 
+use calendar_event;
 use moodle_exception;
+use stdClass;
 
 /**
- * Helper class for the google docs repository and google calendar events.
+ * Utility class for all instance (module) routines helper.
  *
  * @package     mod_googlemeet
  * @copyright   2023 Rone Santos <ronefel@hotmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
+    
+    /** @var string The googlemeet meeting_start event */
+    public const GOOGLEMEET_EVENT_START = 'googlemeet_event';
 
     /**
      * Wrapper function to perform an API call and also catch and handle potential exceptions.
@@ -49,5 +54,40 @@ class helper {
         }
 
         return $response;
+    }
+
+    /**
+     * Generates an event in calendar after a googlemeet insert/update.
+     *
+     * @param stdClass $googlemeet moodleform
+     * @param stdClass $event The event
+     * 
+     * @return void
+     **/
+    public static function create_calendar_event(stdClass $googlemeet, stdClass $event) {
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/calendar/lib.php');
+
+        // Add event to the calendar as openingtime is set.
+        $calendarevent = (object) [
+            'eventtype' => self::GOOGLEMEET_EVENT_START,
+            'type' => CALENDAR_EVENT_TYPE_ACTION,
+            'name' => get_string('calendareventname', 'googlemeet', $googlemeet->name),
+            'description' => format_module_intro('googlemeet', $googlemeet, $googlemeet->coursemodule, false),
+            'format' => FORMAT_HTML,
+            'courseid' => $googlemeet->course,
+            'groupid' => 0,
+            'userid' => 0,
+            'modulename' => 'googlemeet',
+            'instance' => $googlemeet->id,
+            'timestart' => $event->eventdate,
+            'timeduration' => $event->duration,
+            'timesort' => $event->eventdate,
+            'visible' => instance_is_visible('googlemeet', $googlemeet),
+            'priority' => null,
+        ];
+
+        calendar_event::create($calendarevent);
     }
 }

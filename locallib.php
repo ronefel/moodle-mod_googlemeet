@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 use mod_googlemeet\client;
+use mod_googlemeet\helper;
 
 require_once("$CFG->dirroot/mod/googlemeet/lib.php");
 
@@ -120,7 +121,7 @@ function googlemeet_construct_events_data_for_add($googlemeet) {
         while ($sdate < $enddate) {
             if ($sdate < $startweek + WEEKSECS) {
                 $dayinfo = usergetdate($sdate);
-                if (isset($googlemeet->days) && array_key_exists($wdaydesc[$dayinfo['wday']], $googlemeet->days)) {
+                if (isset($googlemeet->days) && property_exists($googlemeet->days, $wdaydesc[$dayinfo['wday']])) {
                     $event = new stdClass();
                     $event->googlemeetid = $googlemeet->id;
                     $event->eventdate = make_timestamp(
@@ -161,20 +162,32 @@ function googlemeet_delete_events($googlemeetid) {
     }
 
     $DB->delete_records('googlemeet_events', ['googlemeetid' => $googlemeetid]);
+
+    // delete Calendar Events
+    $DB->delete_records('event', [
+        'modulename' => 'googlemeet',
+        'instance' => $googlemeetid,
+        'eventtype' => helper::GOOGLEMEET_EVENT_START
+    ]);
 }
 
 /**
  * This creates new events given as timeopen and timeclose by $googlemeet.
  *
+ * @param stdClass $googlemeet moodleform
  * @param array $events list of events
  * @return void
  */
-function googlemeet_set_events($events) {
+function googlemeet_set_events($googlemeet, $events) {
     global $DB;
 
     googlemeet_delete_events($events[0]->googlemeetid);
 
     $DB->insert_records('googlemeet_events', $events);
+    
+    foreach($events as $event) {
+        helper::create_calendar_event($googlemeet, $event);
+    }
 }
 
 /**

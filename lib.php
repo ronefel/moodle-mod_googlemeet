@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_googlemeet\issuer;
+use mod_googlemeet\client;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -78,8 +78,8 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
             $googlemeet->url = $url;
         }
     } else {
-        $issuer = new issuer();
-        $calendarevent = $issuer->create_meeting_event($googlemeet);
+        $client = new client();
+        $calendarevent = $client->create_meeting_event($googlemeet);
         $googlemeet->url = $calendarevent->hangoutLink;
     }
 
@@ -99,7 +99,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
-    googlemeet_set_events($events);
+    googlemeet_set_events($googlemeet, $events);
 
     return $googlemeet->id;
 }
@@ -136,7 +136,7 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
         if ($url) {
             $googlemeet->url = $url;
         }
-    }
+    }    
 
     $googlemeet->timemodified = time();
 
@@ -147,7 +147,7 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
     }
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
-    googlemeet_set_events($events);
+    googlemeet_set_events($googlemeet, $events);
 
     return $googlemeetupdated;
 }
