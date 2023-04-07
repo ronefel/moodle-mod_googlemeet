@@ -323,13 +323,64 @@ function googlemeet_get_users_to_notify($eventid) {
         INNER JOIN {role_assignments} ra
                 ON (ra.contextid = ctx.id AND ra.roleid = 5)
         INNER JOIN {user} u
-                ON u.id = ra.userid
+                ON (u.id = ra.userid AND u.deleted = 0)
+        INNER JOIN {user_enrolments} ue
+                ON (ue.userid = u.id AND ue.status = 0)
+        INNER JOIN {enrol} e
+                ON (e.id = ue.enrolid AND e.courseid = c.id)
              WHERE me.id = {$eventid}
                AND (SELECT count(*) = 0
                       FROM {googlemeet_notify_done} nd
                      WHERE nd.eventid = me.id AND nd.userid = u.id)";
 
     return $DB->get_records_sql($sql);
+}
+
+/**
+ * Generates a list of students enrolled in the course.
+ *
+ * @return stdClass list of students
+ */
+function googlemeet_get_enrolled_students() {
+    global $DB, $COURSE, $OUTPUT;
+
+    $userfields = \core_user\fields::for_name()->with_userpic();
+    $select = $userfields->get_sql('u', false, '', '', false)->selects;
+
+    $sql = "SELECT DISTINCT
+                   {$select}
+              FROM {googlemeet_events} me
+        INNER JOIN {googlemeet} m
+                ON m.id = me.googlemeetid
+        INNER JOIN {course_modules} cm
+                ON (cm.instance = m.id AND cm.visible = 1 AND cm.deletioninprogress = 0)
+        INNER JOIN {course} c
+                ON (c.id = cm.course AND c.visible = 1 AND c.id = {$COURSE->id})
+        INNER JOIN {modules} md
+                ON (md.id = cm.module AND md.name = 'googlemeet')
+        INNER JOIN {context} ctx
+                ON ctx.instanceid = c.id
+        INNER JOIN {role_assignments} ra
+                ON (ra.contextid = ctx.id AND ra.roleid = 5)
+        INNER JOIN {user} u
+                ON (u.id = ra.userid AND u.deleted = 0)
+        INNER JOIN {user_enrolments} ue
+                ON (ue.userid = u.id AND ue.status = 0)
+        INNER JOIN {enrol} e
+                ON (e.id = ue.enrolid AND e.courseid = c.id)";
+
+    $students = $DB->get_records_sql($sql);
+
+    $options = [ 
+        'link' => false,
+        'includefullname' => true,     
+        'size' => 30
+    ];
+    foreach($students as $student){
+        $student->picture = $OUTPUT->user_picture($student, $options);
+    }
+
+    return $students;
 }
 
 /**

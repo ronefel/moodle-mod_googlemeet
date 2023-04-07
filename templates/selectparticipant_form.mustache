@@ -1,0 +1,145 @@
+{{!
+  This file is part of Moodle - http://moodle.org/
+
+  Moodle is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Moodle is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+  @template mod_googlemeet/selectparticipant_form
+
+  Example context (json):
+  {
+    
+  }
+}}
+<div class="{{classes}} d-inline-block">
+    {{#params}}
+        <input type="hidden" name="{{name}}" value="{{value}}">
+    {{/params}}
+    {{#label}}
+        <label for="{{id}}"{{#labelattributes}} {{name}}="{{value}}"{{/labelattributes}}>
+        {{{label}}}
+        </label>
+    {{/label}}
+    {{#helpicon}}
+        {{>core/help_icon}}
+    {{/helpicon}}
+    <div class="multiSelect">
+        <select {{#attributes}}{{name}}="{{value}}" {{/attributes}} id="{{id}}" class="multiSelect_field custom-select {{classes}}" name="{{name}}"
+        {{#title}}title="{{.}}"{{/title}} {{#disabled}}disabled{{/disabled}} multiple data-placeholder="Add Studants">
+        {{#options}}
+            {{#optgroup}}
+                <optgroup label="{{name}}">
+                    {{#options}}
+                        <option value="{{value}}" {{#selected}}selected{{/selected}}>{{{name}}}</option>
+                    {{/options}}
+                </optgroup>
+            {{/optgroup}}
+            {{^optgroup}}
+                <option {{ignore}} value="{{value}}" {{#selected}}selected{{/selected}}>{{{name}}}</option>
+            {{/optgroup}}
+        {{/options}}
+        </select>
+    </div>
+    <noscript>
+        <input type="submit" class="btn btn-secondary ml-1" value="{{#str}}go, core{{/str}}">
+    </noscript>
+</div>
+
+{{#js}}
+    $(function() {
+        $('.multiSelect').each(function(e) {
+            let self = $(this);
+            let field = self.find('.multiSelect_field');
+            let fieldOption = field.find('option');
+            let placeholder = field.attr('data-placeholder');
+            let disabled = {{disabled}};
+            let pictures = { {{#pictures}} {{id}} : "{{{picture}}}", {{/pictures}} };
+
+            field.hide().after(`<div class="multiSelect_dropdown custom-select"></div>
+                                <span class="multiSelect_placeholder">` + placeholder + `</span>
+                                <ul class="multiSelect_list"></ul>`);
+            
+            fieldOption.each(function(e) {
+                $('.multiSelect_list').append(`<li class="multiSelect_option" data-value="${$(this).val()}">
+                                                    <a class="multiSelect_text">${pictures[$(this).val()]}</a>
+                                                </li>`);
+            });
+            
+            let dropdown = self.find('.multiSelect_dropdown');
+            let list = self.find('.multiSelect_list');
+            let option = self.find('.multiSelect_option');
+            let optionText = self.find('.multiSelect_text');
+            
+            dropdown.attr('data-multiple', 'true');
+            
+            option.click(function(e) {
+                if(!disabled){
+                    let self = $(this);
+                    let value = self.data("value");
+                    e.stopPropagation();
+                    self.addClass('-selected');
+                    field.find('option[value="'+value+'"]').prop('selected', true);
+                    dropdown.append(function(e) {
+                        return $('<span class="multiSelect_choice" data-value="'+value+'">'+ pictures[value] +'<i class="fa fa-times multiSelect_deselect -iconX" aria-hidden="true"></i></span>').click(function(e) {
+                            if(!disabled){
+                                let self = $(this);
+                                e.stopPropagation();
+                                list.find('.multiSelect_option:contains(' + self.text() + ')').removeClass('-selected');
+                                field.find('option[value="'+self.data("value")+'"]').prop('selected', false);
+                                self.remove();
+                                list.find('.multiSelect_noselections').remove();
+                                if (dropdown.children(':visible').length === 0) {
+                                    dropdown.removeClass('-hasValue');
+                                }
+                            }
+                        });
+                    }).addClass('-hasValue');
+                    if (!option.not('.-selected').length) {
+                        list.append('<h5 class="multiSelect_noselections">All selected</h5>'); //stringar
+                    }
+                }
+            });
+            
+            dropdown.click(function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                if(!disabled){
+                    dropdown.toggleClass('-open');
+                    list.toggleClass('-open').scrollTop(0);
+                }
+            });
+            
+            $(document).on('click touch', function(e) {
+                if (dropdown.hasClass('-open')) {
+                    dropdown.toggleClass('-open');
+                    list.removeClass('-open');
+                }
+            });
+
+            $('input[type=radio][name=selectedpermission]').change(function() {
+                if(this.value == 'selectedstudents'){
+                    disabled = false;
+                    dropdown.removeClass('-disabled');
+                } else {
+                    disabled = true;
+                    dropdown.addClass('-disabled');
+                }
+            });
+
+            if(disabled) {
+                dropdown.addClass('-disabled');
+            }
+        });
+    });
+{{/js}}
