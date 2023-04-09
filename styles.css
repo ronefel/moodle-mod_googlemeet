@@ -225,10 +225,18 @@
   font-size: 14px;
   min-height: 35px;
   line-height: 35px;
+  border-radius: 4px;
+  box-shadow: none;
+  outline: none;
+  background-color: #fff;
+  color: #444f5b;
+  border: 1px solid #d9dbde;
+  font-weight: 400;
+  padding: 0.5px 13px;
   margin: 0;
+  cursor: pointer;
   width: 100% !important;
   height: auto !important;
-  position: relative;
 }
 
 #page-mod-googlemeet-mod .multiSelect_dropdown.-disabled {
@@ -252,11 +260,12 @@
 #page-mod-googlemeet-mod .multiSelect_list {
   display: none;
   margin: 0;
+  margin-bottom: 25px;
   padding: 0;
   list-style: none;
-  position: absolute;
-  max-height: 400px;
-  top: 39px;
+  position: relative;
+  max-height: calc(10 * 40px);
+  top: -18px;
   left: 0;
   z-index: 9999;
   right: 0;
@@ -264,7 +273,7 @@
   border-radius: .5rem;
   overflow-x: hidden;
   overflow-y: auto;
-  border: 1px solid #999ea7;
+  border: 1px solid #d9dbde;
   box-shadow: 0px 10px 20px 0px rgba(0, 0, 0, 0.12);
 }
 
@@ -284,6 +293,7 @@
 }
 
 #page-mod-googlemeet-mod .multiSelect_text {
+  cursor: pointer;
   display: block;
   padding: 5px 13px;
   color: #525c67;
@@ -334,6 +344,7 @@
   font-size: 13px;
   border-radius: 30px;
   cursor: pointer;
+  font-weight: 500;
 }
 
 #page-mod-googlemeet-mod .multiSelect_dropdown.-disabled .multiSelect_choice {
@@ -360,17 +371,17 @@
 }
 
 #page-mod-googlemeet-mod .multiSelect_placeholder {
-  position: absolute;
-    left: 0;
-    font-size: 14px;
-    background-color: transparent;
-    color: #b8bcbf;
-    pointer-events: none;
-    padding: 0 13px;
-    margin: 7px 0;
+  position: relative;
+  left: 20px;
+  font-size: 14px;
+  top: -29px;
+  padding: 0 4px;
+  background-color: transparent;
+  color: #b8bcbf;
+  pointer-events: none;
 }
 
 #page-mod-googlemeet-mod .multiSelect_dropdown.-hasValue + .multiSelect_placeholder,
 #page-mod-googlemeet-mod .multiSelect_dropdown.-open.-hasValue + .multiSelect_placeholder {
-  display: none;
+  opacity: 0;
 }

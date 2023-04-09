@@ -18,64 +18,10 @@
   @template mod_googlemeet/selectparticipant_form
 
   Example context (json):
-    {  
-        "name": "googlemeet_participant_selection",
-        "method": "get",
-        "action": "https://www.moodle4.com/course/modedit.php",
-        "classes": "singleselect",
-        "label": "",
-        "disabled": true,
-        "title": null,
-        "formid": "single_select_f6430bc819bb6b2",
-        "id": "single_select6430bc819bb6b3",
-        "attributes": [],
-        "params": [
-            {
-                "name": "sr",
-                "value": "0"
-            },
-            { 
-                "name": "add",
-                "value": "googlemeet"
-            },
-            {
-                "name": "section",
-                "value": "0"
-            },
-            { 
-                "name": "course",
-                "value": "2"
-            }
-        ],
-        "options": [
-            {
-                "value": "1",
-                "name": "First Student",
-                "selected": true,
-                "optgroup": false
-            },
-            {
-                "value": "2",
-                "name": "Second Student",
-                "selected": false,
-                "optgroup": false
-            }
-        ],
-        "labelattributes": [],
-        "helpicon": false,
-        "pictures": [
-            {
-                "id": "1",
-                "picture": "<span class='userinitials size-30'>FS</span>First Student",
-            },
-            {
-                "id": "2",
-                "picture": "<span class='userinitials size-30'>SS</span>Second Student"
-            }
-        ]
-    }
+  {
+    
+  }
 }}
-
 <div class="{{classes}} d-inline-block">
     {{#params}}
         <input type="hidden" name="{{name}}" value="{{value}}">
@@ -89,8 +35,8 @@
         {{>core/help_icon}}
     {{/helpicon}}
     <div class="multiSelect">
-        <select {{#attributes}}{{name}}="{{value}}"{{/attributes}} id="{{id}}" class="multiSelect_field custom-select {{classes}}" name="{{name}}"
-        {{#title}}title="{{.}}"{{/title}} {{#disabled}}disabled="disabled"{{/disabled}} multiple style="display: none;">
+        <select {{#attributes}}{{name}}="{{value}}" {{/attributes}} id="{{id}}" class="multiSelect_field custom-select {{classes}}" name="{{name}}"
+        {{#title}}title="{{.}}"{{/title}} {{#disabled}}disabled{{/disabled}} multiple data-placeholder="Add Studants">
         {{#options}}
             {{#optgroup}}
                 <optgroup label="{{name}}">
@@ -104,130 +50,96 @@
             {{/optgroup}}
         {{/options}}
         </select>
-        <div class="multiSelect_dropdown custom-select {{#hasselected}}-hasValue{{/hasselected}} {{#disabled}}-disabled{{/disabled}}" tabindex="0">
-            <ul class="multiSelect_list">
-            {{#options}}
-                <li class="multiSelect_option {{#selected}}-selected{{/selected}}" data-value="{{value}}">
-                    <a class="multiSelect_text">{{{picture}}}</a>
-                </li>
-            {{/options}}
-            </ul>
-
-            {{#options}}
-                {{#selected}}
-                    <span class="multiSelect_choice" data-value="{{value}}">
-                        {{{picture}}} <i class="fa fa-times multiSelect_deselect -iconX" aria-hidden="true"></i>
-                    </span>
-                {{/selected}}
-            {{/options}}
-
-        </div>                                
-        <span class="multiSelect_placeholder">Add Students</span> {{! stringar }}
     </div>
+    <noscript>
+        <input type="submit" class="btn btn-secondary ml-1" value="{{#str}}go, core{{/str}}">
+    </noscript>
 </div>
 
 {{#js}}
-$(function() {
-    $('#page-mod-googlemeet-mod .multiSelect').each(function(e) {
-        let self = $(this);
-        let field = self.find('.multiSelect_field');
-        let disabled = {{disabled}};
-        let topOffset = 3;
-        
-        let dropdown = self.find('.multiSelect_dropdown');
-        let list = self.find('.multiSelect_list');
-        let option = self.find('.multiSelect_option');
-        let optionText = self.find('.multiSelect_text');
-                    
-        option.click(function(e) {
-            if(!disabled){
-                let self = $(this);
-                let value = self.data("value");
-                e.stopPropagation();
-                self.addClass('-selected');
-                field.find('option[value="'+value+'"]').prop('selected', true);
-                dropdown.append(function(e) {
-                    return $('<span class="multiSelect_choice" data-value="'+value+'">'+ self.children().html() +'<i class="fa fa-times multiSelect_deselect -iconX" aria-hidden="true"></i></span>').click(function(e) {
-                        e.stopPropagation();
-                        selectedChoiceClick($(this));
-                    });
-                }).addClass('-hasValue');
-                list.css('top', dropdown.outerHeight() + topOffset);
-                if (!option.not('.-selected').length) {
-                    showNoselections();
-                }
-            }
-        });
+    $(function() {
+        $('.multiSelect').each(function(e) {
+            let self = $(this);
+            let field = self.find('.multiSelect_field');
+            let fieldOption = field.find('option');
+            let placeholder = field.attr('data-placeholder');
+            let disabled = {{disabled}};
+            let pictures = { {{#pictures}} {{id}} : "{{{picture}}}", {{/pictures}} };
 
-        $('.multiSelect_choice').click(function(e) {
-            e.stopPropagation();
-            selectedChoiceClick($(this));
-        });
-        
-        dropdown.click(function(e) {
-            if(e.target == this) {
+            field.hide().after(`<div class="multiSelect_dropdown custom-select"></div>
+                                <span class="multiSelect_placeholder">` + placeholder + `</span>
+                                <ul class="multiSelect_list"></ul>`);
+            
+            fieldOption.each(function(e) {
+                $('.multiSelect_list').append(`<li class="multiSelect_option" data-value="${$(this).val()}">
+                                                    <a class="multiSelect_text">${pictures[$(this).val()]}</a>
+                                                </li>`);
+            });
+            
+            let dropdown = self.find('.multiSelect_dropdown');
+            let list = self.find('.multiSelect_list');
+            let option = self.find('.multiSelect_option');
+            let optionText = self.find('.multiSelect_text');
+            
+            dropdown.attr('data-multiple', 'true');
+            
+            option.click(function(e) {
+                if(!disabled){
+                    let self = $(this);
+                    let value = self.data("value");
+                    e.stopPropagation();
+                    self.addClass('-selected');
+                    field.find('option[value="'+value+'"]').prop('selected', true);
+                    dropdown.append(function(e) {
+                        return $('<span class="multiSelect_choice" data-value="'+value+'">'+ pictures[value] +'<i class="fa fa-times multiSelect_deselect -iconX" aria-hidden="true"></i></span>').click(function(e) {
+                            if(!disabled){
+                                let self = $(this);
+                                e.stopPropagation();
+                                list.find('.multiSelect_option:contains(' + self.text() + ')').removeClass('-selected');
+                                field.find('option[value="'+self.data("value")+'"]').prop('selected', false);
+                                self.remove();
+                                list.find('.multiSelect_noselections').remove();
+                                if (dropdown.children(':visible').length === 0) {
+                                    dropdown.removeClass('-hasValue');
+                                }
+                            }
+                        });
+                    }).addClass('-hasValue');
+                    if (!option.not('.-selected').length) {
+                        list.append('<h5 class="multiSelect_noselections">All selected</h5>'); //stringar
+                    }
+                }
+            });
+            
+            dropdown.click(function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 if(!disabled){
                     dropdown.toggleClass('-open');
-                    list.toggleClass('-open').scrollTop(0).css('top', dropdown.outerHeight() + topOffset);
+                    list.toggleClass('-open').scrollTop(0);
                 }
-            }
-        });
-
-        dropdown.keypress((e)=>{
-            if(!disabled){
-                e.stopPropagation();
-                e.preventDefault();
-                let key = e.keyCode;
-                if (key == 13 || key == 32) {
+            });
+            
+            $(document).on('click touch', function(e) {
+                if (dropdown.hasClass('-open')) {
                     dropdown.toggleClass('-open');
-                    list.toggleClass('-open').scrollTop(0).css('top', dropdown.outerHeight() + topOffset);
+                    list.removeClass('-open');
                 }
-            }
-        });
+            });
 
-        dropdown.focusout((e)=>{
-            if (dropdown.hasClass('-open')) {
-                dropdown.toggleClass('-open');
-                list.removeClass('-open');
-            }
-        });
+            $('input[type=radio][name=selectedpermission]').change(function() {
+                if(this.value == 'selectedstudents'){
+                    disabled = false;
+                    dropdown.removeClass('-disabled');
+                } else {
+                    disabled = true;
+                    dropdown.addClass('-disabled');
+                }
+            });
 
-        $('input[type=radio][name=selectedpermission]').change(function() {
-            if(this.value == 'selectedstudents'){
-                disabled = false;
-                dropdown.removeClass('-disabled');
-            } else {
-                disabled = true;
+            if(disabled) {
                 dropdown.addClass('-disabled');
             }
         });
-
-        if(disabled) {
-            dropdown.addClass('-disabled');
-        }
-        
-        if(list.children('.multiSelect_option').not('.-selected').length == 0) {
-            showNoselections();
-        }
-
-        function showNoselections() {
-            list.append('<h5 class="multiSelect_noselections">All selected</h5>'); //stringar
-        }
-
-        function selectedChoiceClick(self) {
-            if(!disabled){
-                let value = self.data("value");
-                list.find('[data-value="'+value+'"]').removeClass('-selected');
-                field.find('option[value="'+value+'"]').prop('selected', false);
-                self.remove();
-                list.css('top', dropdown.outerHeight() + topOffset).find('.multiSelect_noselections').remove();
-                if (list.find('.-selected').length === 0) {
-                    dropdown.removeClass('-hasValue');
-                }
-            }
-        }
     });
-});
 {{/js}}
