@@ -44,7 +44,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG, $OUTPUT, $PAGE;
+        global $CFG;
 
         $config = get_config('googlemeet');
 
@@ -244,33 +244,6 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         );
         $minutesbefore->setSelected($config->minutesbefore);
         $mform->addHelpButton('minutesbefore', 'minutesbefore', 'googlemeet');
-
-        $mform->addElement('header', 'headerpermission', 'Permissão de Acesso');    //stringar
-        $radioarray = [
-            $mform->createElement('radio', 'selectedpermission', '', 'Todos os estudantes inscritos', 'allstudants'),   //stringar
-            $mform->createElement('radio', 'selectedpermission', '', 'Os estudantes selecionados abaixo', 'selectedstudents')   //stringar
-        ];
-        $mform->setDefault('selectedpermission', 'allstudants');
-        $mform->addGroup($radioarray, null, '', array('<br>'), false);
-        $mform->disabledIf('googlemeet_participant_selection', 'selectedpermission', 'eq', 'allstudants');
-        $students = googlemeet_get_enrolled_students();
-        $options = [];
-        $pictures = [];
-        foreach($students as $student) {
-            $options[$student->id] = fullname($student);
-            $pictures[] = ['id' => $student->id, 'picture' => str_replace('"', "'", $student->picture)];
-        }
-        $selectparticipant = new single_select(new moodle_url(qualified_me()),
-            'googlemeet_participant_selection',
-            $options,
-            '',
-            ''
-        );
-        $pformcontext = $selectparticipant->export_for_template($OUTPUT);
-        $pformcontext->disabled = true;      
-        $pformcontext->pictures = $pictures;  
-        $mform->addElement('static', 'static_participant_list', '', $OUTPUT->render_from_template('mod_googlemeet/selectparticipant_form', $pformcontext));
-        $PAGE->requires->js(new moodle_url($CFG->wwwroot . '/mod/googlemeet/assets/js/build/jquery-3.3.1.js'));
 
         // Add standard elements.
         $this->standard_coursemodule_elements();
