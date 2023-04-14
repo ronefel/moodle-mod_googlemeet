@@ -78,7 +78,7 @@ class client {
     protected function get_user_oauth_client() {
         if ($this->client) {
             return $this->client;
-        }        
+        }
 
         $returnurl = new moodle_url('/mod/googlemeet/callback.php');
         $returnurl->param('callback', 'yes');
@@ -93,7 +93,7 @@ class client {
      * Print the login in a popup.
      *
      * @param array|null $attr Custom attributes to be applied to popup div.
-     * 
+     *
      * @return string HTML code
      */
     public function print_login_popup($attr = null) {
@@ -104,12 +104,10 @@ class client {
         $state = $url->get_param('state') . '&reloadparent=true';
         $url->param('state', $state);
 
-        $button = new single_button($url, get_string('logintoaccount', 'googlemeet'), 'post', true);
-        $button->add_action(new popup_action('click', $url, 'Login'));
-        $button->class = 'mdl-align';
-        $button = $OUTPUT->render($button);
-
-        return html_writer::div($button, '', $attr);
+        return html_writer::div('
+            <button class="btn btn-primary" onClick="javascript:window.open(\''.$client->get_login_url().'\',
+                \'Login\',\'height=600,width=599,top=0,left=0,menubar=0,location=0,directories=0,fullscreen=0\'
+            ); return false">'.get_string('logintoaccount', 'googlemeet').'</button>', 'mt-2');
 
     }
 
@@ -117,7 +115,7 @@ class client {
      * Print user info.
      *
      * @param string|null $scope 'calendar' or 'drive' Defines which link will be used.
-     * 
+     *
      * @return string HTML code
      */
     public function print_user_info($scope = null) {
@@ -140,7 +138,7 @@ class client {
 
         $logouturl = new moodle_url($PAGE->url);
         $logouturl->param('logout', true);
-        
+
         $img = html_writer::img('data:image/jpeg;base64,'.$userpicture, '');
         $out = html_writer::start_div('',['id'=>'googlemeet_auth-info']);
         $out .= html_writer::link($userurl, $img, ['id'=>'googlemeet_picture-user', 'target'=>'_blank', 'title'=>get_string('manage', 'googlemeet')]);
@@ -157,7 +155,7 @@ class client {
         $out .= html_writer::end_div();
 
         return $out;
-    }    
+    }
 
     /**
      * Checks whether the user is authenticate or not.
@@ -197,7 +195,7 @@ class client {
 
     /**
      * Store the access token.
-     * 
+     *
      * @return void
      */
     public function callback() {
@@ -210,7 +208,7 @@ class client {
      * Create a meeting event in Google Calendar
      *
      * @param object $googlemeet An object from the form.
-     * 
+     *
      * @return object Google Calendar event
      */
     public function create_meeting_event($googlemeet) {
@@ -275,7 +273,7 @@ class client {
         ];
 
         $eventresponse = helper::request($service, 'insertevent', $eventparams, json_encode($eventrawpost));
-        
+
         $conferenceparams = [
             'calendarid' => $calendarid,
             'eventid' => $eventresponse->id,
@@ -312,7 +310,7 @@ class client {
                 'pageSize' => 1000,
                 'fields' => 'nextPageToken, files(id,owners)'
             ];
-    
+
             $folderresponse = helper::request($service, 'list', $folderparams, false);
 
             $folders = $folderresponse->files;
@@ -331,7 +329,7 @@ class client {
                 'pageSize' => 1000,
                 'fields' => 'files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink)'
             ];
-    
+
             $recordingresponse = helper::request($service, 'list', $recordingparams, false);
 
             $recordings = $recordingresponse->files;
@@ -339,30 +337,35 @@ class client {
             if ($recordings && count($recordings) > 0) {
                 for ($i = 0; $i < count($recordings); $i++) {
                     $recording = $recordings[$i];
-                    if (!array_search('anyoneWithLink', $recording->permissionIds)) {
-                        $permissionparams = [
-                            'fileid' => $recording->id,
-                            'fields' => 'id'
-                        ];
-                        $permissionrawpost = [
-                            "role" => "reader",
-                            "type" => "anyone"
-                        ];
-                        helper::request($service, 'create_permission', $permissionparams, json_encode($permissionrawpost));
+
+                    // If the recording has already been processed
+                    if(isset($recording->videoMediaMetadata)){
+                        if (!in_array('anyoneWithLink', $recording->permissionIds)) {
+                            $permissionparams = [
+                                'fileid' => $recording->id,
+                                'fields' => 'id'
+                            ];
+                            $permissionrawpost = [
+                                "role" => "reader",
+                                "type" => "anyone"
+                            ];
+                            helper::request($service, 'create_permission', $permissionparams, json_encode($permissionrawpost));
+                        }
+                        //Format it into a human-readable time.
+                        $duration = $this->formatSeconds((int)$recording->videoMediaMetadata->durationMillis);
+
+                        $createdTime = new DateTime($recording->createdTime);
+
+                        $recordings[$i]->recordingId = $recording->id;
+                        $recordings[$i]->duration = $duration;
+                        $recordings[$i]->createdTime = $createdTime->getTimestamp();
+
+                        unset($recordings[$i]->id);
+                        unset($recordings[$i]->permissionIds);
+                        unset($recordings[$i]->videoMediaMetadata);
+                    } else {
+                        $recordings[$i]->unprocessed = true;
                     }
-
-                    //Format it into a human-readable time.
-                    $duration = $this->formatSeconds((int)$recording->videoMediaMetadata->durationMillis);
-
-                    $createdTime = new DateTime($recording->createdTime);
-
-                    $recordings[$i]->recordingId = $recording->id;
-                    $recordings[$i]->duration = $duration;
-                    $recordings[$i]->createdTime = $createdTime->getTimestamp();
-
-                    unset($recordings[$i]->id);
-                    unset($recordings[$i]->permissionIds);
-                    unset($recordings[$i]->videoMediaMetadata);
                 }
 
                 sync_recordings($googlemeet->id, $recordings);
@@ -388,12 +391,12 @@ class client {
      * Create a meeting event in Google Calendar
      *
      * @param int $milli The time in milliseconds.
-     * 
+     *
      * @return string The formatted time
      */
     protected function formatSeconds($milli=0){
         $secs = $milli / 1000;
-        
+
         if($secs < MINSECS){
             return '0:'. str_pad(floor($secs), 2, "0", STR_PAD_LEFT);
         }
@@ -401,8 +404,8 @@ class client {
             return floor($secs / MINSECS) .':'. str_pad(floor($secs % MINSECS), 2, "0", STR_PAD_LEFT);
         }
         else {
-            return floor($secs / HOURSECS) .':'. 
-                str_pad(floor(($secs % HOURSECS) / MINSECS), 2, "0", STR_PAD_LEFT) .':'. 
+            return floor($secs / HOURSECS) .':'.
+                str_pad(floor(($secs % HOURSECS) / MINSECS), 2, "0", STR_PAD_LEFT) .':'.
                 str_pad(floor(($secs % HOURSECS) % MINSECS), 2, "0", STR_PAD_LEFT);
         }
     }

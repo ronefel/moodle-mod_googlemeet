@@ -47,27 +47,43 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         global $CFG;
 
         $config = get_config('googlemeet');
-
-        $client = new client();        
+        $mform = $this->_form;
+        $client = new client();
 
         $logout = optional_param('logout', 0, PARAM_BOOL);
         if($logout) {
             $client->logout();
-        }       
-        
-        $mform = $this->_form;
-
-        if(!$client->check_login() && empty($this->current->instance)) {
-            echo '<style>
-                .fcontainer, .form-group {
-                    pointer-events: none;
-                    opacity: 0.4;
-                }
-            </style>';
-            $mform->addElement('html', $client->print_login_popup());
-        } else if(empty($this->current->instance)) {                        
-            $mform->addElement('html', $client->print_user_info('calendar'));
         }
+
+        if(empty($this->current->instance)) {
+            $client_islogged = optional_param('client_islogged', false, PARAM_BOOL);
+            // $url = optional_param('url', '', PARAM_RAW);
+
+            // Se estava logado antes de submeter o formulario e expirou a sessão do Google após submeter o formulário
+            if($client_islogged && !$client->check_login()) {
+                $mform->addElement('html', html_writer::div('
+                    A sessão da sua conta do Google expirou no meio do processo, faça login novamente.'. //stringar
+                    $client->print_login_popup(), 'mdl-align alert alert-danger googlemeet_loginbutton'
+                ));
+            }
+            // Se não está logado na conta do Google e tem configurado o emissor
+            else if(!$client->check_login() && $config->issuerid > 0) {
+                $mform->addElement('html', html_writer::div('
+                    Faça login na sua conta do Google para que a URL do Google Meet seja criada automaticamente'. //stringar
+                    $client->print_login_popup(), 'mdl-align alert alert-info googlemeet_loginbutton'
+                ));
+            }
+
+            // Se está logado mostra a informação da conta do Google
+            if($client->check_login()) {
+                $mform->addElement('html', $client->print_user_info('calendar'));
+                $mform->addElement('hidden', 'client_islogged', true);
+            }
+
+        } else {
+            $mform->addElement('hidden', 'client_islogged', false);
+        }
+        $mform->setType('client_islogged', PARAM_BOOL);
 
         // Adding the "general" fieldset, where all the common settings are shown.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -175,55 +191,14 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $mform->setExpanded('headerroomurl');
         }
 
-        if ($config->issuerid > 0) {
-            if (empty($this->current->instance)) {
-                // $generateurlgroup = [
-                //     $mform->createElement('text', 'url_viewer', '', ['size' => '30', 'readonly' => true]),
-
-                //     // $mform->createElement(
-                //     //     'button',
-                //     //     'generateurlroom',
-                //     //     get_string('generateurlroom', 'googlemeet'),
-                //     //     ['disabled' => true]
-                //     // ),
-                    
-                //     // $mform->createElement('html', $client->print_login_popup()),
-                //     $mform->createElement('html', '<span id="generateurlroomLoading"></span>'),
-
-                //     $mform->createElement('html', '<div style="width: 100%;">
-                //         <pre id="googlemeetcontentlog"></pre>
-                //     </div>'),
-
-                //     $mform->createElement('hidden', 'url', null, ['id' => 'id_url']),
-                //     $mform->createElement('hidden', 'originalname', null, ['id' => 'id_originalname']),
-                //     $mform->createElement('hidden', 'creatoremail', null, ['id' => 'id_creatoremail']),
-                //     $mform->createElement('html',
-                //         '<div id="id_googlemeet_generateurlgroup_error" class="form-control-feedback invalid-feedback"></div>'
-                //     ),
-                // ];
-
-                // $mform->addGroup($generateurlgroup, 'generateurlgroup', get_string('roomurl', 'googlemeet'), [' '], false);
-
-                $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
-                $mform->setType('url_viewer', PARAM_URL);
-                // $mform->setType('url', PARAM_URL);
-                // $mform->setType('originalname', PARAM_TEXT);
-                // $mform->setType('creatoremail', PARAM_EMAIL);
-
-                // $PAGE->requires->js_call_amd('mod_googlemeet/mod_form', 'init', [
-                //     $config->clientid,
-                //     $config->apikey,
-                //     get_user_timezone($USER->timezone)
-                // ]);
-            } else {
-                $mform->addElement('text', 'url_viewer', get_string('roomurl', 'googlemeet'), ['size' => '30', 'readonly' => true]);
-                $mform->setType('url_viewer', PARAM_URL);
-                $mform->setDefault('url_viewer', $this->current->url);
-            }
+        if ($client->check_login() && empty($this->current->instance)) {
+            $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), ['size' => '50', 'readonly' => true]);
+            $mform->setType('url', PARAM_RAW);
+            $mform->addElement('static', 'url_desc', '', 'A URL da sala será gerada automaticamente.'); //stringar
         } else {
             $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), array('size' => '50'));
             $mform->setType('url', PARAM_URL);
-            $mform->addRule('url', null, 'required', null, 'client');
+            $mform->addHelpButton('url', 'url', 'googlemeet');
         }
 
         $mform->addElement('header', 'headernotification', get_string('notification', 'googlemeet'));
@@ -314,13 +289,23 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             );
         }
 
-        // if (!$this->current->instance) {
-        //     $url = googlemeet_clear_url($data['url']);
-        //     if (!$url) {
-        //         $errors['generateurlgroup'] = get_string('url_failed', 'googlemeet');
-        //         $errors['url'] = get_string('url_failed', 'googlemeet');
-        //     }
-        // }
+        $client = new client();
+        $client_islogged = optional_param('client_islogged', false, PARAM_BOOL);
+
+        if(empty($this->current->instance)) {
+            // Valida o campo url somente se não estiver logado na conta do Google
+            if(!$client->check_login() && !$client_islogged){
+                $errors = $this->validate_url($data['url'], $errors);
+            }
+
+            // Força um erro se a sessão do Google expirou após submeter o formulário
+            if(!$client->check_login() && $client_islogged){
+                $errors['client_islogged'] = '';
+            }
+        } else {
+            // Valida o campo url se estiver atualizando a instância
+            $errors = $this->validate_url($data['url'], $errors);
+        }
 
         return $errors;
     }
@@ -368,5 +353,19 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         }
 
         return $found;
+    }
+
+    /**
+     * Validate the provided url
+     * @param string $eventdate
+     * @param array $errors
+     * @return bool
+     */
+    private function validate_url(string $url, array $errors) {
+        if (googlemeet_clear_url($url) == null) {
+            $errors['generateurlgroup'] = get_string('url_failed', 'googlemeet');
+            $errors['url'] = get_string('url_failed', 'googlemeet');
+        }
+        return $errors;
     }
 }

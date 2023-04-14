@@ -72,13 +72,15 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/mod/googlemeet/locallib.php');
 
-    if (isset($googlemeet->url)) {
+    $client = new client();
+
+    // Se não esta logado na conta do Google
+    if (!$client->check_login()) {
         $url = googlemeet_clear_url($googlemeet->url);
         if ($url) {
             $googlemeet->url = $url;
         }
     } else {
-        $client = new client();
         $calendarevent = $client->create_meeting_event($googlemeet);
         $googlemeet->url = $calendarevent->hangoutLink;
     }
@@ -96,7 +98,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     if (isset($googlemeet->days)) {
         $googlemeet->days = json_decode($googlemeet->days, true);
     }
-    
+
     $events = googlemeet_construct_events_data_for_add($googlemeet);
 
     googlemeet_set_events($googlemeet, $events);
@@ -297,10 +299,12 @@ function sync_recordings($googlemeetid, $files) {
     $deleterecordings = [];
 
     foreach ($files as $file) {
-        if (in_array($file->recordingId, $recordingids, true)) {
-            array_push($updaterecordings, $file);
-        } else {
-            array_push($insertrecordings, $file);
+        if(!isset($file->unprocessed)){
+            if (in_array($file->recordingId, $recordingids, true)) {
+                array_push($updaterecordings, $file);
+            } else {
+                array_push($insertrecordings, $file);
+            }
         }
     }
 

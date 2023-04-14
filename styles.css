@@ -20,6 +20,11 @@
     width: 100%;
 }
 
+.googlemeet_loginbutton a {
+    font-weight: 400 !important;
+    color: #fff !important;
+}
+
 #googlemeet_auth-info {
     display: flex;
     align-items: center;
@@ -100,10 +105,10 @@
 #googlemeet_recordings_table {
     position: relative;
     max-width: 900px;
+    overflow: auto;
 }
 
-#googlemeet_recordings_table table,
-#googlemeet_recordings #syncbutton {
+#googlemeet_recordings_table table {
     min-width: 500px;
 }
 
@@ -199,5 +204,11 @@
     }
     #googlemeet_auth-info {
         justify-content: start;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    #googlemeet_auth-info {
+        justify-content: center;
     }
 }

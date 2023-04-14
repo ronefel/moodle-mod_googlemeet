@@ -59,7 +59,7 @@ if ($ADMIN->fulltree) {
         'googlemeet/multieventdateexpanded',
         get_string('multieventdateexpanded', 'googlemeet'),
         get_string('multieventdateexpanded_desc', 'googlemeet'),
-        1
+        0
     ));
 
     $settings->add(new admin_setting_configcheckbox(
@@ -73,7 +73,7 @@ if ($ADMIN->fulltree) {
         'googlemeet/notificationexpanded',
         get_string('notificationexpanded', 'googlemeet'),
         get_string('notifycationexpanded_desc', 'googlemeet'),
-        1
+        0
     ));
 
     $settings->add(new admin_setting_configcheckbox(
