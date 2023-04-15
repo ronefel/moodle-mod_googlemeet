@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_googlemeet';
-$plugin->release = '1.0.6';
-$plugin->version = 2021031800;
+$plugin->release = '1.1.0';
+$plugin->version = 2023041400;
 $plugin->requires = 2019052000; // Moodle 3.7.
 $plugin->maturity = MATURITY_STABLE;

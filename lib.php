@@ -83,6 +83,9 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
     } else {
         $calendarevent = $client->create_meeting_event($googlemeet);
         $googlemeet->url = $calendarevent->hangoutLink;
+
+        $link  = new moodle_url($calendarevent->htmlLink);
+        $googlemeet->eventid = $link->get_param('eid');
     }
 
     if (isset($googlemeet->days)) {
@@ -138,7 +141,7 @@ function googlemeet_update_instance($googlemeet, $mform = null) {
         if ($url) {
             $googlemeet->url = $url;
         }
-    }    
+    }
 
     $googlemeet->timemodified = time();
 

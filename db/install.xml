@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/googlemeet/db" VERSION="20201002" COMMENT="XMLDB file for Moodle mod_googlemeet"
+<XMLDB PATH="mod/googlemeet/db" VERSION="20230414" COMMENT="XMLDB file for Moodle mod_googlemeet"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -27,6 +27,7 @@
         <FIELD NAME="notify" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether to send notification to the student."/>
         <FIELD NAME="minutesbefore" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="When the notification should be send."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was last modified."/>
+        <FIELD NAME="eventid" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Google Calendar Event ID"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

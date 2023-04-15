@@ -121,7 +121,7 @@ function googlemeet_construct_events_data_for_add($googlemeet) {
         while ($sdate < $enddate) {
             if ($sdate < $startweek + WEEKSECS) {
                 $dayinfo = usergetdate($sdate);
-                if (isset($googlemeet->days) && property_exists($googlemeet->days, $wdaydesc[$dayinfo['wday']])) {
+                if (isset($googlemeet->days) && property_exists((object)$googlemeet->days, $wdaydesc[$dayinfo['wday']])) {
                     $event = new stdClass();
                     $event->googlemeetid = $googlemeet->id;
                     $event->eventdate = make_timestamp(
@@ -184,7 +184,7 @@ function googlemeet_set_events($googlemeet, $events) {
     googlemeet_delete_events($events[0]->googlemeetid);
 
     $DB->insert_records('googlemeet_events', $events);
-    
+
     foreach($events as $event) {
         helper::create_calendar_event($googlemeet, $event);
     }

@@ -52,7 +52,7 @@ $PAGE->set_url('/mod/googlemeet/view.php', array('id' => $cm->id));
 $PAGE->set_context($context);
 
 if(has_capability('mod/googlemeet:editrecording', $context)){
-    $client = new client(); 
+    $client = new client();
     $logout = optional_param('logout', 0, PARAM_BOOL);
     if($logout) {
         $client->logout();
@@ -83,14 +83,15 @@ googlemeet_print_header($googlemeet, $cm, $course);
 googlemeet_print_heading($googlemeet, $cm, $course, true);
 googlemeet_print_intro($googlemeet, $cm, $course, true);
 
-echo '<a
-        href="' . $googlemeet->url . '"
-        class="btn btn-primary"
-        id="id_enterroom"
-        onclick="this.target=\'_blank\';"
-      >'
-    . get_string('entertheroom', 'googlemeet') .
-    '</a>';
+echo html_writer::link($googlemeet->url,
+    get_string('entertheroom', 'googlemeet'),
+    ['class'=>'btn btn-primary', 'target'=>'_blank', 'title'=>get_string('entertheroom', 'googlemeet')]);
+
+if(has_capability('mod/googlemeet:editrecording', $context)){
+    echo html_writer::link('https://calendar.google.com/calendar/u/0/r/eventedit/'.$googlemeet->eventid,
+        'Detalhes do evento',
+        ['class'=>'btn btn-outline-primary ml-2', 'target'=>'_blank', 'title'=>'Detalhes do evento']);
+}
 
 googlemeet_get_upcoming_events($googlemeet->id);
 

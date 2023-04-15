@@ -36,5 +36,20 @@ function xmldb_googlemeet_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
 
+    if ($oldversion < 2023041400) {
+
+        // Define field eventid to be added to googlemeet.
+        $table = new xmldb_table('googlemeet');
+        $field = new xmldb_field('eventid', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'timemodified');
+
+        // Conditionally launch add field eventid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Googlemeet savepoint reached.
+        upgrade_mod_savepoint(true, 2023041400, 'googlemeet');
+    }
+
     return true;
 }

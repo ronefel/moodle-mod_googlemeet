@@ -29,6 +29,7 @@
     display: flex;
     align-items: center;
     justify-content: end;
+    padding: 8px;
 }
 
 #googlemeet_picture-user {
