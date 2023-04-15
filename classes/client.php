@@ -20,10 +20,9 @@ defined('MOODLE_INTERNAL') || die();
 
 use DateTime;
 use html_writer;
-use popup_action;
-use single_button;
 use moodle_url;
 use dml_missing_record_exception;
+use moodle_exception;
 use stdClass;
 
 /**
@@ -47,6 +46,9 @@ class client {
      */
     private $issuer = null;
 
+    /** @var bool informs if the client is enabled */
+    public $enabled = true;
+
     /**
      * Additional scopes required for drive.
      */
@@ -58,15 +60,19 @@ class client {
      * @return void
      */
     public function __construct() {
-
         try {
             $this->issuer = \core\oauth2\api::get_issuer(get_config('googlemeet', 'issuerid'));
         } catch (dml_missing_record_exception $e) {
-            die('disabled');
+            $this->enabled = false;
         }
 
-        if ($this->issuer && !$this->issuer->get('enabled')) {
-            die('disabled');
+        if ($this->issuer && (!$this->issuer->get('enabled') || $this->issuer->get('id') == 0)) {
+            $this->enabled = false;
+        }
+
+        $client = $this->get_user_oauth_client();
+        if ($this->enabled && $client->get_login_url()->get_host() !== 'accounts.google.com') {
+            throw new moodle_exception('invalidissuerid', 'googlemeet');
         }
     }
 
@@ -254,7 +260,7 @@ class client {
         }
 
         $eventrawpost = [
-            'summary' => $googlemeet->name,
+            'summary' => $googlemeet->name .' ('. rand(1000,9999) .')',
             'start' => [
                 'dateTime' => $startdatetime,
                 'timeZone' => $timezone
