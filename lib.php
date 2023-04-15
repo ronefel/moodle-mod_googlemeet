@@ -86,6 +86,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
 
         $link  = new moodle_url($calendarevent->htmlLink);
         $googlemeet->eventid = $link->get_param('eid');
+        $googlemeet->originalname = $calendarevent->summary;
     }
 
     if (isset($googlemeet->days)) {
