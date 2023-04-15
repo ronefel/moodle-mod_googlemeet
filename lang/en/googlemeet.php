@@ -65,6 +65,7 @@ $string['googlemeet:view'] = 'View Google Meet™ for Moodle content';
 $string['hide'] = 'Hide';
 $string['invalideventenddate'] = 'This date can not be earlier than the "Event date"';
 $string['invalideventendtime'] = 'The end time must be greater than start time';
+$string['invalidissuerid'] = 'The OAuth service selected in the "Google Meet™ for Moodle" settings is not supported by Google';
 $string['invalidstoredurl'] = 'Cannot display this resource, Google Meet URL is invalid.';
 $string['jstableinfo'] = 'Showing {start} to {end} of {rows} recordings';
 $string['jstableinfofiltered'] = 'Showing {start} to {end} of {rows} recordings (filtered from {rowsTotal} recordings)';
