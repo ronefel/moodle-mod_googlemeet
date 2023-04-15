@@ -87,16 +87,16 @@ echo html_writer::link($googlemeet->url,
     get_string('entertheroom', 'googlemeet'),
     ['class'=>'btn btn-primary', 'target'=>'_blank', 'title'=>get_string('entertheroom', 'googlemeet')]);
 
-if(has_capability('mod/googlemeet:editrecording', $context)){
-    echo html_writer::link('https://calendar.google.com/calendar/u/0/r/eventedit/'.$googlemeet->eventid,
-        'Detalhes do evento',
-        ['class'=>'btn btn-outline-primary ml-2', 'target'=>'_blank', 'title'=>'Detalhes do evento']);
+if(has_capability('mod/googlemeet:editrecording', $context)) {
+    if ($googlemeet->eventid != null) {
+        echo html_writer::link('https://calendar.google.com/calendar/u/0/r/eventedit/'.$googlemeet->eventid,
+            'Detalhes do evento', //stringar
+            ['class'=>'btn btn-outline-primary ml-2', 'target'=>'_blank', 'title'=>'Detalhes do evento']); //stringar
+    }
 }
 
 googlemeet_get_upcoming_events($googlemeet->id);
 
 googlemeet_print_recordings($googlemeet, $cm, $context);
-
-$events = googlemeet_get_future_events();
 
 echo $OUTPUT->footer();
