@@ -44,7 +44,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG;
+        global $CFG, $OUTPUT;
 
         $config = get_config('googlemeet');
         $mform = $this->_form;
@@ -66,8 +66,8 @@ class mod_googlemeet_mod_form extends moodleform_mod {
                     $client->print_login_popup(), 'mdl-align alert alert-danger googlemeet_loginbutton'
                 ));
             }
-            // Se não está logado na conta do Google e tem configurado o emissor
-            else if(!$client->check_login() && $config->issuerid > 0) {
+            // Se o cliente está habilitado e se não está logado na conta do Google
+            else if($client->enabled && !$client->check_login()) {
                 $mform->addElement('html', html_writer::div('
                     Faça login na sua conta do Google para que a URL do Google Meet seja criada automaticamente'. //stringar
                     $client->print_login_popup(), 'mdl-align alert alert-info googlemeet_loginbutton'
@@ -199,6 +199,10 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), array('size' => '50'));
             $mform->setType('url', PARAM_URL);
             $mform->addHelpButton('url', 'url', 'googlemeet');
+        }
+
+        if(!empty($this->current->instance) && $client->enabled) {
+            $mform->addElement('static', 'url_desc', '', $OUTPUT->notification('<strong>Cuidado!</strong> Se a URL for alterada as gravações sincronizadas serão removidas na próxima sincronização.', 'warning')); //stringar
         }
 
         $mform->addElement('header', 'headernotification', get_string('notification', 'googlemeet'));
