@@ -37,7 +37,9 @@
       {{{syncbutton}}}
       {{! stringar }}
       <div class="mt-4">
-        Aguarde ao menos 10 minutos para que o arquivo da gravação seja gerado e salvo em "Meu Drive > Gravações do Meet" do organizador.
+        Aguarde ao menos 10 minutos para que o arquivo da gravação seja gerado e salvo em "Meu Drive > Meet Recordings" do organizador.
+        <p></p>
+        Para remover uma gravação primeiro exclua o arquivo da gravação do Google Drive e depois clique no botão sincronizar acima.
         <p></p>
         Para gravar uma reunião, confira se:
         <ul>
@@ -46,7 +48,7 @@
         </ul>
         Não será possível gravar a reunião se a organização não tiver espaço no Drive, mesmo que você tenha.
         <div class="mt-4">
-          Para mais informações, convido você a ler este artigo da Central de Ajuda:
+          Para mais informações, veja esse artigo da Central de Ajuda:
         </div>
         <div>
           <a href="https://notifications.google.com/g/p/APNL1TjJltVk6EcLPyFTJ8V_9ty1FeTAD0XSSJVLiaWPezIaQKfIPd1kGURFUMVV3I5yHgVZoOgxkl4gySV-4SCf2pZ27Vk8Iy9DnHSQBqtK51uG3Gyz" target="_blank" rel="nofollow noopener">https://support.google.com/meet/answer/9308681</a>
@@ -55,6 +57,7 @@
     {{/islogged}}
 
     {{^islogged}}
+      Faça login na sua conta do Google para que a gravação do Google Meet seja sincronizada com o Moodle
       {{{login}}}
     {{/islogged}}
   </div>
