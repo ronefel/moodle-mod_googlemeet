@@ -26,11 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['issuerid'] = 'Serviço OAuth';
-$string['issuerid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID" target="_blank">How to create the API key and OAuth client ID</a>';
-// $string['apikey'] = 'Chave de API';
+$string['issuerid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID" target="_blank">Como configurar um Serviço OAuth</a>';
+$string['calendareventname'] = '{$a} está agendado para';
 $string['checkweekdays'] = 'Selecione os dias da semana que se enquadram no intervalo de datas selecionado.';
-// $string['clientid'] = 'ID do cliente OAuth';
-// $string['clientid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/Como-criar-a-chave-de-API-e-o-ID-do-cliente-OAuth" target="_blank">Como criar a chave de API e o ID do cliente OAuth</a>';
 $string['date'] = 'Data';
 $string['duration'] = 'Duração';
 $string['earlierto'] = 'A data do evento não pode ser anterior à data de início do curso ({$a}).';
@@ -54,8 +52,8 @@ $string['emailcontent_help'] = 'Quando uma notificação é enviada a um aluno, 
 </ul>';
 $string['entertheroom'] = 'Entrar na sala';
 $string['eventdate'] = 'Data do evento';
+$string['eventdetails'] = 'Detalhes do evento';
 $string['from'] = 'das';
-$string['generateurlroom'] = 'Gerar URL da sala';
 $string['googlemeet:addinstance'] = 'Adicionar novo Google Meet™ para Moodle';
 $string['googlemeet:editrecording'] = 'Editar as gravações';
 $string['googlemeet:removerecording'] = 'Remover as gravações';
@@ -64,6 +62,7 @@ $string['googlemeet:view'] = 'Ver Google Meet™ para Moodle';
 $string['hide'] = 'Ocultar';
 $string['invalideventenddate'] = 'Esta data não pode ser anterior à "Data do evento"';
 $string['invalideventendtime'] = 'O horário de término deve ser maior que o horário de início';
+$string['invalidissuerid'] = 'O serviço OAuth selecionado nas configurações do "Google Meet™ para Moodle" não é suportado pelo Google';
 $string['invalidstoredurl'] = 'Não é possível exibir este recurso, a URL do Google Meet é inválida.';
 $string['jstableinfo'] = 'Mostrando {start} a {end} de {rows} gravações';
 $string['jstableinfofiltered'] = 'Mostrando {start} a {end} de {rows} gravações (filtrado de {rowsTotal} gravações)';
@@ -73,28 +72,29 @@ $string['jstableperpage'] = '{select} gravações por página';
 $string['jstablesearch'] = 'Procurar...';
 $string['lastsync'] = 'Última sincronização:';
 $string['loading'] = 'Carregando';
+$string['logintoaccount'] = 'Faça login na sua conta do Google';
+$string['logintoyourgoogleaccount'] = 'Faça login na sua conta do Google para que a URL do Google Meet seja criada automaticamente';
+$string['loggedinaccount'] = 'Conta do Google conectada';
+$string['logout'] = 'Sair';
+$string['manage'] = 'Gerenciar';
 $string['messageprovider:notification'] = 'Lembrete de início do evento do Google Meet';
 $string['minutesbefore'] = 'Minutos antes';
 $string['minutesbefore_help'] = 'Número de minutos antes do início do evento quando a notificação deve ser enviada.';
 $string['modulename'] = 'Google Meet™ para Moodle';
 $string['modulename_help'] = 'O módulo Google Meet™ para Moodle permite ao professor criar uma sala do Google Meet como recurso do curso e, após as reuniões, disponibilizar as gravações aos alunos, salvas no Google Drive.
 <p>©2018 Google LLC All rights reserved.<br/>
-Google Meet and the Google Meet logo are registered trademarks of Google LLC.</p>
-';
+Google Meet and the Google Meet logo are registered trademarks of Google LLC.</p>';
 $string['modulenameplural'] = 'Instâncias do Google Meet™ para Moodle';
 $string['multieventdateexpanded'] = 'Recorrência da data do evento expandido';
 $string['multieventdateexpanded_desc'] = 'Mostrar as configurações de "Recorrência da data do evento" expandidas por padrão ao criar uma nova Sala.';
 $string['name'] = 'Nome';
 $string['never'] = 'Nunca';
-$string['notfoundrecordingname'] = 'Nenhuma gravação encontrada com o nome';
-$string['notfoundrecordingsfolder'] = 'A pasta "Meet Recordings" não foi encontrada no Google Drive.';
 $string['notification'] = 'Notificação';
 $string['notificationexpanded'] = 'Notificação expandida';
 $string['notify'] = 'Enviar notificação para o estudante';
 $string['notify_help'] = 'Se marcada, uma notificação será enviada ao aluno sobre a data de início do evento.';
 $string['notifycationexpanded_desc'] = 'Mostrar as configurações de "Notificação" expandidas por padrão ao criar uma nova sala.';
 $string['notifytask'] = 'Tarefa de notificação do Google Meet™ para Moodle';
-$string['notpossiblesync'] = 'Não é possível sincronizar com uma conta diferente daquela que criou a sala.';
 $string['or'] = 'ou';
 $string['play'] = 'Reproduzir';
 $string['pluginadministration'] = 'Administração do Google Meet™ para Moodle';
@@ -103,7 +103,6 @@ $string['privacy:metadata:googlemeet_notify_done'] = 'Registra notificações en
 $string['privacy:metadata:googlemeet_notify_done:eventid'] = 'O ID do evento';
 $string['privacy:metadata:googlemeet_notify_done:userid'] = 'O ID do usuário';
 $string['privacy:metadata:googlemeet_notify_done:timesent'] = 'O timestamp indicando quando o usuário recebeu uma notificação';
-$string['earlierto'] = 'A data do evento não pode ser anterior à data de início do curso ({$a}).';
 $string['recording'] = 'Gravação';
 $string['recordings'] = 'Gravações';
 $string['recordingswiththename'] = 'Gravações com o nome:';
@@ -111,30 +110,49 @@ $string['recurrenceeventdate'] = 'Recorrência da data do evento';
 $string['recurrenceeventdate_help'] = 'Esta função possibilita a criação de várias recorrências da data do evento.
 <br>* <strong>Repetir</strong>: Selecione os dias da semana em que sua classe se reunirá (por exemplo, segunda-feira / quarta-feira / sexta-feira).
 <br>* <strong>Repetir a cada</strong>: Isso permite uma configuração de frequência. Se sua classe se reunirá todas as semanas, selecione 1; se reunirá a cada duas semanas, selecione 2; a cada 3 semanas, selecione 3, e assim por diante.
-<br>* <strong>Repetir até</strong>: Selecione o último dia de reunião (o último dia que você deseja levar a recorrência da data do evento).
-';
+<br>* <strong>Repetir até</strong>: Selecione o último dia de reunião (o último dia que você deseja levar a recorrência da data do evento).';
 $string['repeatasfollows'] = 'Repita a data do evento acima da seguinte forma';
 $string['repeatevery'] = 'Repetir a cada';
 $string['repeaton'] = 'Repetir';
 $string['repeatuntil'] = 'Repetir até';
-$string['requirednamefield'] = 'Digite o nome da sala para criar automaticamente.';
 $string['roomcreator'] = 'Criador da sala:';
 $string['roomname'] = 'Nome da sala';
 $string['roomurl'] = 'URL da sala';
+$string['roomurl_caution'] = '<strong>Cuidado!</strong> Se a URL da sala for alterada, as gravações sincronizadas serão removidas na próxima sincronização.';
+$string['roomurl_desc'] = 'A URL da sala será gerada automaticamente.';
 $string['roomurlexpanded'] = 'URL da sala expandido';
 $string['roomurlexpanded_desc'] = 'Mostrar as configurações de "URL da sala" expandidas por padrão ao criar uma nova sala.';
+$string['servicenotenabled'] = 'Acesso não configurado. Certifique-se de que os serviços \'Google Drive API\' e \'Google Calendar API\' estejam ativados.';
+$string['sessionexpired'] = 'A sessão da sua conta do Google expirou no meio do processo, faça login novamente.';
 $string['show'] = 'Mostrar';
 $string['strftimedm'] = '%a. %d %b.';
 $string['strftimedmy'] = '%a. %d %b. %Y';
 $string['strftimedmyhm'] = '%a. %d %b. %Y %H:%M';
 $string['strftimehm'] = '%H:%M';
 $string['syncwithgoogledrive'] = 'Sincronizar com o Google Drive';
+$string['sync_info'] = 'Aguarde ao menos 10 minutos para que o arquivo da gravação seja gerado e salvo em "Meu Drive > Meet Recordings" do organizador.
+<p></p>
+Para remover uma gravação primeiro exclua o arquivo da gravação do Google Drive e depois clique no botão sincronizar acima.
+<p></p>
+Para gravar uma reunião, confira se:
+<ul>
+    <li>você não atingiu sua cota pessoal do Drive;</li>
+    <li>sua organização não atingiu a cota do Drive.</li>
+</ul>
+Não será possível gravar a reunião se a organização não tiver espaço no Drive, mesmo que você tenha.
+<p></p>
+Para mais informações, veja esse artigo da Central de Ajuda:
+<br>
+<a href="https://notifications.google.com/g/p/APNL1TjJltVk6EcLPyFTJ8V_9ty1FeTAD0XSSJVLiaWPezIaQKfIPd1kGURFUMVV3I5yHgVZoOgxkl4gySV-4SCf2pZ27Vk8Iy9DnHSQBqtK51uG3Gyz" target="_blank" rel="nofollow noopener">https://support.google.com/meet/answer/9308681</a>';
+$string['sync_notloggedin'] = 'Faça login na sua conta do Google para sincronizar a gravação do Google Meet com o Moodle';
 $string['thereisnorecordingtoshow'] = 'Não há gravação para mostrar.';
 $string['timeahead'] = 'Não é possível criar várias recorrências da data do evento que excedam um ano, ajuste as datas de início e término.';
 $string['timedate'] = '%d/%m/%Y %H:%M';
 $string['to'] = 'até';
 $string['today'] = 'Hoje';
 $string['upcomingevents'] = 'Próximos eventos';
+$string['url'] = '';
 $string['url_failed'] = 'É obrigatório uma URL válida do Google Meet';
+$string['url_help'] = 'Ex. https://meet.google.com/aaa-aaaa-aaa';
 $string['visible'] = 'Visível';
 $string['week'] = 'Semana(s)';

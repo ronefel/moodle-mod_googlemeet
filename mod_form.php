@@ -59,22 +59,20 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $client_islogged = optional_param('client_islogged', false, PARAM_BOOL);
             // $url = optional_param('url', '', PARAM_RAW);
 
-            // Se estava logado antes de submeter o formulario e expirou a sessão do Google após submeter o formulário
+            // was logged in before submitting the form and the google session expired after submitting the form
             if($client_islogged && !$client->check_login()) {
-                $mform->addElement('html', html_writer::div('
-                    A sessão da sua conta do Google expirou no meio do processo, faça login novamente.'. //stringar
+                $mform->addElement('html', html_writer::div(get_string('sessionexpired', 'googlemeet') .
                     $client->print_login_popup(), 'mdl-align alert alert-danger googlemeet_loginbutton'
                 ));
             }
-            // Se o cliente está habilitado e se não está logado na conta do Google
+            // Whether the customer is enabled and if not logged in to the Google account
             else if($client->enabled && !$client->check_login()) {
-                $mform->addElement('html', html_writer::div('
-                    Faça login na sua conta do Google para que a URL do Google Meet seja criada automaticamente'. //stringar
+                $mform->addElement('html', html_writer::div(get_string('logintoyourgoogleaccount', 'googlemeet') .
                     $client->print_login_popup(), 'mdl-align alert alert-info googlemeet_loginbutton'
                 ));
             }
 
-            // Se está logado mostra a informação da conta do Google
+            // If is logged in, shows Google account information
             if($client->check_login()) {
                 $mform->addElement('html', $client->print_user_info('calendar'));
                 $mform->addElement('hidden', 'client_islogged', true);
@@ -194,7 +192,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         if ($client->check_login() && empty($this->current->instance)) {
             $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), ['size' => '50', 'readonly' => true]);
             $mform->setType('url', PARAM_RAW);
-            $mform->addElement('static', 'url_desc', '', 'A URL da sala será gerada automaticamente.'); //stringar
+            $mform->addElement('static', 'url_desc', '', get_string('roomurl_desc', 'googlemeet'));
         } else {
             $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), array('size' => '50'));
             $mform->setType('url', PARAM_URL);
@@ -202,7 +200,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         }
 
         if(!empty($this->current->instance) && $client->enabled) {
-            $mform->addElement('static', 'url_desc', '', $OUTPUT->notification('<strong>Cuidado!</strong> Se a URL for alterada as gravações sincronizadas serão removidas na próxima sincronização.', 'warning')); //stringar
+            $mform->addElement('static', 'url_caution', '', $OUTPUT->notification(get_string('roomurl_caution', 'googlemeet'), 'warning'));
         }
 
         $mform->addElement('header', 'headernotification', get_string('notification', 'googlemeet'));
@@ -286,9 +284,7 @@ class mod_googlemeet_mod_form extends moodleform_mod {
 
         $startdate = $data['eventdate'] + $starttime;
         if ($startdate < $COURSE->startdate) {
-            $errors['eventtime'] = get_string(
-                'earlierto',
-                'googlemeet',
+            $errors['eventtime'] = get_string('earlierto', 'googlemeet',
                 userdate($COURSE->startdate, get_string('strftimedmyhm', 'googlemeet'))
             );
         }
@@ -297,17 +293,17 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         $client_islogged = optional_param('client_islogged', false, PARAM_BOOL);
 
         if(empty($this->current->instance)) {
-            // Valida o campo url somente se não estiver logado na conta do Google
+            // Validates the url field only if not logged into Google account
             if(!$client->check_login() && !$client_islogged){
                 $errors = $this->validate_url($data['url'], $errors);
             }
 
-            // Força um erro se a sessão do Google expirou após submeter o formulário
+            // Forces an error if the Google session expired after submitting the form
             if(!$client->check_login() && $client_islogged){
                 $errors['client_islogged'] = '';
             }
         } else {
-            // Valida o campo url se estiver atualizando a instância
+            // Validates url field if updating instance
             $errors = $this->validate_url($data['url'], $errors);
         }
 

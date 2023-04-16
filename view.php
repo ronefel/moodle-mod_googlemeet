@@ -90,8 +90,8 @@ echo html_writer::link($googlemeet->url,
 if(has_capability('mod/googlemeet:editrecording', $context)) {
     if ($googlemeet->eventid != null) {
         echo html_writer::link('https://calendar.google.com/calendar/u/0/r/eventedit/'.$googlemeet->eventid,
-            'Detalhes do evento', //stringar
-            ['class'=>'btn btn-outline-primary ml-2', 'target'=>'_blank', 'title'=>'Detalhes do evento']); //stringar
+            get_string('eventdetails', 'googlemeet'),
+            ['class'=>'btn btn-outline-primary ml-2', 'target'=>'_blank', 'title'=>get_string('eventdetails', 'googlemeet')]);
     }
 }
 

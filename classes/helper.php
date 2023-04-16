@@ -28,7 +28,7 @@ use stdClass;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
-    
+
     /** @var string The googlemeet meeting_start event */
     public const GOOGLEMEET_EVENT_START = 'googlemeet_event';
 
@@ -61,7 +61,7 @@ class helper {
      *
      * @param stdClass $googlemeet moodleform
      * @param stdClass $event The event
-     * 
+     *
      * @return void
      **/
     public static function create_calendar_event(stdClass $googlemeet, stdClass $event) {
