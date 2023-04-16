@@ -139,7 +139,7 @@ To record a meeting, make sure:
     <li>You haven\'t met your personal Drive quota.</li>
     <li>Your organization hasn\'t met its Drive quota.</li>
 </ul>
-If you have space in your Drive, but your organization doesn’t have space, you can’t record the meeting.
+If you have space in your Drive, but your organization doesn\'t have space, you can\'t record the meeting.
 <p></p>
 For more information, look this Help Center article:
 <br>
