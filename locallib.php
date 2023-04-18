@@ -241,6 +241,7 @@ function googlemeet_print_recordings($googlemeet, $cm, $context) {
             $loginhtml = '';
             $syncbutton = '';
             $islogged = false;
+            $isloggedcreatoremail = $client->get_email() === $googlemeet->creatoremail;
             if(!$client->check_login()) {
                 $loginhtml = $client->print_login_popup();
             } else {
@@ -259,7 +260,8 @@ function googlemeet_print_recordings($googlemeet, $cm, $context) {
                 'redordingname' => $redordingname,
                 'login' => $loginhtml,
                 'islogged' => $islogged,
-                'syncbutton' => $syncbutton
+                'syncbutton' => $syncbutton,
+                'isloggedcreatoremail' => $isloggedcreatoremail
             ]);
         }
     }

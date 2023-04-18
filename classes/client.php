@@ -127,6 +127,10 @@ class client {
     public function print_user_info($scope = null) {
         global $OUTPUT, $PAGE;
 
+        if (!$this->check_login()) {
+            return '';
+        }
+
         $userauth = $this->get_user_oauth_client();
         $userinfo = $userauth->get_userinfo();
 
@@ -414,6 +418,20 @@ class client {
                 str_pad(floor(($secs % HOURSECS) / MINSECS), 2, "0", STR_PAD_LEFT) .':'.
                 str_pad(floor(($secs % HOURSECS) % MINSECS), 2, "0", STR_PAD_LEFT);
         }
+    }
+
+    /**
+     * Get the email of the logged in Google account
+     *
+     * @return string The email
+     */
+    public function get_email() {
+        if (!$this->check_login()) {
+            return '';
+        }
+
+        $userauth = $this->get_user_oauth_client()->get_userinfo();
+        return $userauth['username'];
     }
 
 }

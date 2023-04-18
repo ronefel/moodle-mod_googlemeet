@@ -189,18 +189,25 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             $mform->setExpanded('headerroomurl');
         }
 
-        if ($client->check_login() && empty($this->current->instance)) {
-            $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), ['size' => '50', 'readonly' => true]);
-            $mform->setType('url', PARAM_RAW);
-            $mform->addElement('static', 'url_desc', '', get_string('roomurl_desc', 'googlemeet'));
-        } else {
-            $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), array('size' => '50'));
-            $mform->setType('url', PARAM_URL);
-            $mform->addHelpButton('url', 'url', 'googlemeet');
-        }
-
         if(!empty($this->current->instance) && $client->enabled) {
             $mform->addElement('static', 'url_caution', '', $OUTPUT->notification(get_string('roomurl_caution', 'googlemeet'), 'warning'));
+        }
+
+        if ($client->check_login() && empty($this->current->instance)) {
+            $mform->addElement('static', 'url_desc', '', $OUTPUT->notification(get_string('roomurl_desc', 'googlemeet'), 'info'));
+            $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), ['size' => '50', 'readonly' => true]);
+            $mform->setType('url', PARAM_RAW);
+
+            $mform->addElement('text', 'creatoremail', get_string('creatoremail', 'googlemeet'), ['size' => '50', 'readonly' => true]);
+            $mform->setType('creatoremail', PARAM_RAW);
+        } else {
+            $mform->addElement('text', 'url', get_string('roomurl', 'googlemeet'), ['size' => '50']);
+            $mform->setType('url', PARAM_URL);
+            $mform->addHelpButton('url', 'url', 'googlemeet');
+
+            $mform->addElement('text', 'creatoremail', get_string('creatoremail', 'googlemeet'), ['size' => '50']);
+            $mform->setType('creatoremail', PARAM_RAW);
+            $mform->addHelpButton('creatoremail', 'creatoremail', 'googlemeet');
         }
 
         $mform->addElement('header', 'headernotification', get_string('notification', 'googlemeet'));
@@ -296,6 +303,9 @@ class mod_googlemeet_mod_form extends moodleform_mod {
             // Validates the url field only if not logged into Google account
             if(!$client->check_login() && !$client_islogged){
                 $errors = $this->validate_url($data['url'], $errors);
+                if(!validate_email($data['creatoremail'])){
+                    $errors['creatoremail'] = get_string('creatoremail_error', 'googlemeet');
+                }
             }
 
             // Forces an error if the Google session expired after submitting the form
@@ -305,6 +315,9 @@ class mod_googlemeet_mod_form extends moodleform_mod {
         } else {
             // Validates url field if updating instance
             $errors = $this->validate_url($data['url'], $errors);
+            if(!validate_email($data['creatoremail'])){
+                $errors['creatoremail'] = get_string('creatoremail_error', 'googlemeet');
+            }
         }
 
         return $errors;

@@ -33,17 +33,25 @@
       <div>
         {{# str }} recordingswiththename, mod_googlemeet {{/ str }} <strong>{{redordingname}}</strong>
       </div>
-
-      {{{syncbutton}}}
-      <div class="mt-4">
-        {{# str }} sync_info, mod_googlemeet {{/ str }}
+      <div>
+        {{# str }} roomcreator, mod_googlemeet {{/ str }} <strong><span id="id_creatoremail">{{creatoremail}}</span></strong>
       </div>
+      {{#isloggedcreatoremail}}
+        {{{syncbutton}}}
+      {{/isloggedcreatoremail}}
+      {{^isloggedcreatoremail}}
+        <div class="alert alert-danger alert-block mt-3">
+          {{# str }} isnotcreatoremail, mod_googlemeet {{/ str }}
+      </div>
+      {{/isloggedcreatoremail}}
     {{/islogged}}
-
     {{^islogged}}
       {{# str }} sync_notloggedin, mod_googlemeet {{/ str }}
       {{{login}}}
     {{/islogged}}
+    <div class="mt-4">
+      {{# str }} sync_info, mod_googlemeet {{/ str }}
+    </div>
   </div>
   {{#islogged}}
     <div id="logininfo">
