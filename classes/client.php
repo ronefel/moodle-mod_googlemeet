@@ -16,8 +16,6 @@
 
 namespace mod_googlemeet;
 
-defined('MOODLE_INTERNAL') || die();
-
 use DateTime;
 use html_writer;
 use moodle_url;
@@ -139,10 +137,10 @@ class client {
         $userpicture = base64_encode($userinfo['picture']);
 
         $userurl = '#';
-        if($scope == 'calendar') {
+        if ($scope == 'calendar') {
             $userurl = new moodle_url('https://calendar.google.com/');
         }
-        if($scope == 'drive') {
+        if ($scope == 'drive') {
             $userurl = new moodle_url('https://drive.google.com/');
         }
 
@@ -150,16 +148,18 @@ class client {
         $logouturl->param('logout', true);
 
         $img = html_writer::img('data:image/jpeg;base64,'.$userpicture, '');
-        $out = html_writer::start_div('',['id'=>'googlemeet_auth-info']);
-        $out .= html_writer::link($userurl, $img, ['id'=>'googlemeet_picture-user', 'target'=>'_blank', 'title'=>get_string('manage', 'googlemeet')]);
-        $out .= html_writer::start_div('',['id'=>'googlemeet_user-name']);
+        $out = html_writer::start_div('', ['id' => 'googlemeet_auth-info']);
+        $out .= html_writer::link($userurl, $img,
+            ['id' => 'googlemeet_picture-user', 'target' => '_blank', 'title' => get_string('manage', 'googlemeet')]
+        );
+        $out .= html_writer::start_div('', ['id' => 'googlemeet_user-name']);
         $out .= html_writer::span(get_string('loggedinaccount', 'googlemeet'), '');
         $out .= html_writer::span($name);
         $out .= html_writer::span($username);
         $out .= html_writer::end_div();
         $out .= html_writer::link($logouturl,
-            $OUTPUT->pix_icon('logout', '', 'googlemeet', ['class'=>'m-0']),
-            ['class'=>'btn btn-secondary btn-sm', 'title'=>get_string('logout', 'googlemeet')]
+            $OUTPUT->pix_icon('logout', '', 'googlemeet', ['class' => 'm-0']),
+            ['class' => 'btn btn-secondary btn-sm', 'title' => get_string('logout', 'googlemeet')]
         );
 
         $out .= html_writer::end_div();
@@ -185,7 +185,7 @@ class client {
     public function logout() {
         global $PAGE;
 
-        if($this->check_login()) {
+        if ($this->check_login()) {
             $url = new moodle_url($PAGE->url);
             $client = $this->get_user_oauth_client();
             $client->log_out();
@@ -264,7 +264,7 @@ class client {
         }
 
         $eventrawpost = [
-            'summary' => $googlemeet->name .' ('. rand(1000,9999) .')',
+            'summary' => $googlemeet->name .' ('. rand(1000, 9999) .')',
             'start' => [
                 'dateTime' => $startdatetime,
                 'timeZone' => $timezone
@@ -312,11 +312,14 @@ class client {
     public function syncrecordings($googlemeet) {
         global $PAGE;
 
-        if($this->check_login()) {
+        if ($this->check_login()) {
             $service = new rest($this->get_user_oauth_client());
 
             $folderparams = [
-                'q' => 'name="Meet Recordings" and trashed = false and mimeType = "application/vnd.google-apps.folder" and "me" in owners',
+                'q' => 'name = "Meet Recordings" and
+                        trashed = false and
+                        mimeType = "application/vnd.google-apps.folder" and
+                        "me" in owners',
                 'pageSize' => 1000,
                 'fields' => 'nextPageToken, files(id,owners)'
             ];
@@ -325,17 +328,21 @@ class client {
 
             $folders = $folderresponse->files;
             $parents = '';
-            for($i=0; $i < count($folders); $i++) {
+            for ($i = 0; $i < count($folders); $i++) {
                 $parents .= 'parents="'.$folders[$i]->id.'"';
                 if ($i + 1 < count($folders)) {
                     $parents .= ' or ';
-                  }
+                }
             }
 
-            $meetingCode = substr($googlemeet->url, 24, 12);
+            $meetingcode = substr($googlemeet->url, 24, 12);
             $name = $googlemeet->name;
             $recordingparams = [
-                'q' => '('.$parents.') and trashed = false and mimeType = "video/mp4" and "me" in owners and (name contains "'.$meetingCode.'" or name contains "'.$name.'")',
+                'q' => '('.$parents.') and
+                        trashed = false and
+                        mimeType = "video/mp4" and
+                        "me" in owners and
+                        (name contains "'.$meetingcode.'" or name contains "'.$name.'")',
                 'pageSize' => 1000,
                 'fields' => 'files(id,name,permissionIds,createdTime,videoMediaMetadata,webViewLink)'
             ];
@@ -348,8 +355,8 @@ class client {
                 for ($i = 0; $i < count($recordings); $i++) {
                     $recording = $recordings[$i];
 
-                    // If the recording has already been processed
-                    if(isset($recording->videoMediaMetadata)){
+                    // If the recording has already been processed.
+                    if (isset($recording->videoMediaMetadata)) {
                         if (!in_array('anyoneWithLink', $recording->permissionIds)) {
                             $permissionparams = [
                                 'fileid' => $recording->id,
@@ -361,14 +368,15 @@ class client {
                             ];
                             helper::request($service, 'create_permission', $permissionparams, json_encode($permissionrawpost));
                         }
-                        //Format it into a human-readable time.
-                        $duration = $this->formatSeconds((int)$recording->videoMediaMetadata->durationMillis);
 
-                        $createdTime = new DateTime($recording->createdTime);
+                        // Format it into a human-readable time.
+                        $duration = $this->formatseconds((int)$recording->videoMediaMetadata->durationMillis);
+
+                        $createdtime = new DateTime($recording->createdTime);
 
                         $recordings[$i]->recordingId = $recording->id;
                         $recordings[$i]->duration = $duration;
-                        $recordings[$i]->createdTime = $createdTime->getTimestamp();
+                        $recordings[$i]->createdTime = $createdtime->getTimestamp();
 
                         unset($recordings[$i]->id);
                         unset($recordings[$i]->permissionIds);
@@ -380,7 +388,6 @@ class client {
 
                 sync_recordings($googlemeet->id, $recordings);
             }
-
 
             $url = new moodle_url($PAGE->url);
             $js = <<<EOD
@@ -404,16 +411,14 @@ class client {
      *
      * @return string The formatted time
      */
-    protected function formatSeconds($milli=0){
+    protected function formatseconds($milli=0) {
         $secs = $milli / 1000;
 
-        if($secs < MINSECS){
+        if ($secs < MINSECS) {
             return '0:'. str_pad(floor($secs), 2, "0", STR_PAD_LEFT);
-        }
-        else if($secs >= MINSECS && $secs < HOURSECS){
+        } else if ($secs >= MINSECS && $secs < HOURSECS) {
             return floor($secs / MINSECS) .':'. str_pad(floor($secs % MINSECS), 2, "0", STR_PAD_LEFT);
-        }
-        else {
+        } else {
             return floor($secs / HOURSECS) .':'.
                 str_pad(floor(($secs % HOURSECS) / MINSECS), 2, "0", STR_PAD_LEFT) .':'.
                 str_pad(floor(($secs % HOURSECS) % MINSECS), 2, "0", STR_PAD_LEFT);

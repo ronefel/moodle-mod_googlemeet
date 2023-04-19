@@ -24,8 +24,6 @@
 
 namespace mod_googlemeet\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The mod_googlemeet instance list viewed event class.
  */

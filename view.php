@@ -41,7 +41,7 @@ if ($id) {
     $course         = $DB->get_record('course', array('id' => $googlemeet->course), '*', MUST_EXIST);
     $cm             = get_coursemodule_from_instance('googlemeet', $googlemeet->id, $course->id, false, MUST_EXIST);
 } else {
-    print_error(get_string('missingidandcmid', 'mod_googlemeet'));
+    throw new moodle_exception('missingidandcmid', 'mod_googlemeet');
 }
 
 require_login($course, true, $cm);
@@ -51,14 +51,14 @@ require_capability('mod/googlemeet:view', $context);
 $PAGE->set_url('/mod/googlemeet/view.php', array('id' => $cm->id));
 $PAGE->set_context($context);
 
-if(has_capability('mod/googlemeet:editrecording', $context)){
+if (has_capability('mod/googlemeet:editrecording', $context)) {
     $client = new client();
     $logout = optional_param('logout', 0, PARAM_BOOL);
-    if($logout) {
+    if ($logout) {
         $client->logout();
     }
     $sync = optional_param('sync', 0, PARAM_BOOL);
-    if($sync) {
+    if ($sync) {
         $client->syncrecordings($googlemeet);
     }
 }
@@ -85,13 +85,13 @@ googlemeet_print_intro($googlemeet, $cm, $course, true);
 
 echo html_writer::link($googlemeet->url,
     get_string('entertheroom', 'googlemeet'),
-    ['class'=>'btn btn-primary', 'target'=>'_blank', 'title'=>get_string('entertheroom', 'googlemeet')]);
+    ['class' => 'btn btn-primary', 'target' => '_blank', 'title' => get_string('entertheroom', 'googlemeet')]);
 
-if(has_capability('mod/googlemeet:editrecording', $context)) {
+if (has_capability('mod/googlemeet:editrecording', $context)) {
     if ($googlemeet->eventid != null) {
         echo html_writer::link('https://calendar.google.com/calendar/u/0/r/eventedit/'.$googlemeet->eventid,
             get_string('eventdetails', 'googlemeet'),
-            ['class'=>'btn btn-outline-primary ml-2', 'target'=>'_blank', 'title'=>get_string('eventdetails', 'googlemeet')]);
+            ['class' => 'btn btn-outline-primary ml-2', 'target' => '_blank', 'title' => get_string('eventdetails', 'googlemeet')]);
     }
 }
 

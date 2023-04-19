@@ -53,7 +53,7 @@ class restore_googlemeet_activity_task extends restore_activity_task {
      *
      * @return array.
      */
-    static public function define_decode_contents() {
+    public static function define_decode_contents() {
         $contents = array();
 
         $contents[] = new restore_decode_content('googlemeet', array('intro'), 'googlemeet');
@@ -66,7 +66,7 @@ class restore_googlemeet_activity_task extends restore_activity_task {
      *
      * @return array.
      */
-    static public function define_decode_rules() {
+    public static function define_decode_rules() {
         $rules = array();
 
         $rules[] = new restore_decode_rule('GOOGLEMEETINDEX', '/mod/googlemeet/index.php?id=$1', 'course');
@@ -82,7 +82,7 @@ class restore_googlemeet_activity_task extends restore_activity_task {
      *
      * @return array.
      */
-    static public function define_restore_log_rules() {
+    public static function define_restore_log_rules() {
         $rules = array();
 
         $rules[] = new restore_log_rule('googlemeet', 'add', 'view.php?id={course_module}', '{googlemeet}');

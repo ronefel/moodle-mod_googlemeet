@@ -24,8 +24,6 @@
 
 use mod_googlemeet\client;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Return if the plugin supports $feature.
  *
@@ -74,7 +72,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
 
     $client = new client();
 
-    // Se não esta logado na conta do Google
+    // Se não esta logado na conta do Google.
     if (!$client->check_login()) {
         $url = googlemeet_clear_url($googlemeet->url);
         if ($url) {
@@ -304,7 +302,7 @@ function sync_recordings($googlemeetid, $files) {
     $deleterecordings = [];
 
     foreach ($files as $file) {
-        if(!isset($file->unprocessed)){
+        if (!isset($file->unprocessed)) {
             if (in_array($file->recordingId, $recordingids, true)) {
                 array_push($updaterecordings, $file);
             } else {

@@ -23,8 +23,6 @@
  */
 namespace mod_googlemeet;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Google Rest API.
  *

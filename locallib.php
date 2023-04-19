@@ -22,7 +22,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
 use mod_googlemeet\client;
 use mod_googlemeet\helper;
@@ -70,7 +70,7 @@ function googlemeet_print_intro($googlemeet, $cm, $course, $ignoresettings = fal
     global $OUTPUT;
 
     $options = empty($googlemeet->displayoptions) ? array() : unserialize($googlemeet->displayoptions);
-    if ($ignoresettings or !empty($options['printintro'])) {
+    if ($ignoresettings || !empty($options['printintro'])) {
         if (trim(strip_tags($googlemeet->intro))) {
             echo $OUTPUT->box_start('mod_introbox', 'googlemeetintro');
             echo format_module_intro('googlemeet', $googlemeet, $cm->id);
@@ -163,7 +163,7 @@ function googlemeet_delete_events($googlemeetid) {
 
     $DB->delete_records('googlemeet_events', ['googlemeetid' => $googlemeetid]);
 
-    // delete Calendar Events
+    // Delete Calendar Events.
     $DB->delete_records('event', [
         'modulename' => 'googlemeet',
         'instance' => $googlemeetid,
@@ -185,7 +185,7 @@ function googlemeet_set_events($googlemeet, $events) {
 
     $DB->insert_records('googlemeet_events', $events);
 
-    foreach($events as $event) {
+    foreach ($events as $event) {
         helper::create_calendar_event($googlemeet, $event);
     }
 }
@@ -237,12 +237,12 @@ function googlemeet_print_recordings($googlemeet, $cm, $context) {
         }
 
         $client = new client();
-        if($client->enabled){
+        if ($client->enabled) {
             $loginhtml = '';
             $syncbutton = '';
             $islogged = false;
             $isloggedcreatoremail = $client->get_email() === $googlemeet->creatoremail;
-            if(!$client->check_login()) {
+            if (!$client->check_login()) {
                 $loginhtml = $client->print_login_popup();
             } else {
                 $islogged = true;

@@ -26,19 +26,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
-    // $settings->add(new admin_setting_configtext(
-    //     'googlemeet/apikey',
-    //     get_string('apikey', 'googlemeet'),
-    //     '',
-    //     ''
-    // ));
-
-    // $settings->add(new admin_setting_configtext(
-    //     'googlemeet/clientid',
-    //     get_string('clientid', 'googlemeet'),
-    //     get_string('clientid_desc', 'googlemeet'),
-    //     ''
-    // ));
 
     $options = [''];
     $issuers = \core\oauth2\api::get_all_issuers();
