@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['issuerid'] = 'Serviço OAuth';
-$string['issuerid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID" target="_blank">Como configurar um Serviço OAuth</a>';
+$string['issuerid_desc'] = '<a href="https://github.com/ronefel/moodle-mod_googlemeet/wiki/Como-criar-o-ID-do-cliente-e-a-Chave-secreta-do-cliente" target="_blank">Como configurar um Serviço OAuth</a>';
 $string['calendareventname'] = '{$a} está agendado para';
 $string['checkweekdays'] = 'Selecione os dias da semana que se enquadram no intervalo de datas selecionado.';
 $string['creatoremail'] = 'E-mail do organizador';
