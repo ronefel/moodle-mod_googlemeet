@@ -2,15 +2,15 @@
 
 The Google Meet™ for Moodle plugin allows the teacher, without having to leave Moodle, to create a Google Meet room and make available to the students the recordings of the room saved in Google Drive.
 
-To create the Google Meet meeting room from Moodle, the Google Meet™ for Moodle plugin needs the API key and the OAuth client ID of the Google APIs.
-To learn how to create the API key and OAuth client ID, click [here](https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-the-API-key-and-OAuth-client-ID).
+To create the Google Meet meeting room from Moodle, the Google Meet™ plugin for Moodle needs an active OAuth 2 service for Google.
+To learn how to set up an OAuth 2 service for Google, click [here](https://github.com/ronefel/moodle-mod_googlemeet/wiki/How-to-create-Client-ID-and-Client-Secret).
 
 <div>
-<img src="https://nimbusweb.me/box/attachment/4899869/3tao4krsqtnw2lsn9td5/35we7Yh3oDFOYwbM/screen1.png" alt="screen1.png" width="270"/>
-<img src="https://nimbusweb.me/box/attachment/4899882/edzpnbkotfg9tpri4849/6w30L8gILMgpgJof/screen2.png" alt="screen2.png" width="270"/>
-<img src="https://nimbusweb.me/box/attachment/4899887/r0u8wmqtfqynog1q6hi5/mn5OI0IyLYDLFWNN/screen3.png" alt="screen3.png" width="270"/>
-<img src="https://nimbusweb.me/box/attachment/4899889/bdh8i7ht2ox0qyd0mnwl/Au9pZ7p1LSDWuxWw/screen4.png" alt="screen4.png" width="270"/>
-<img src="https://nimbusweb.me/box/attachment/4899895/mqk8qnl95h4hpmdnen7m/R53XBvcxwsFtzDWL/screen5.png" alt="screen5.png" width="270"/>
+<img src="https://ronefel.nimbusweb.me/box/attachment/8669013/93arpv0xye1v1fuw44bs/RFOdRT6UcpaK9F8a/screen1.png" alt="screen1.png" width="270" />
+<img src="https://ronefel.nimbusweb.me/box/attachment/8669016/no8bamexlmcaw3cbk22g/a4Fo3nWopQTWd7PJ/screen2.png" alt="screen2.png" width="270" />
+<img src="https://ronefel.nimbusweb.me/box/attachment/8669017/wlb0oosfs8pgpll1o18l/EHMyOvHzWaQMnWHL/screen3.png" alt="screen3.png" width="270" />
+<img src="https://ronefel.nimbusweb.me/box/attachment/8669019/tf0y4bgv6rgvay0hc54b/MWncdrQf0Xx67Zas/screen4.png" alt="screen4.png" width="270" />
+<img src="https://ronefel.nimbusweb.me/box/attachment/8669020/zoxcrmbwgty0qd989g8z/SQwhOZtDqpMCiPiY/screen5.png" alt="screen5.png" width="270" />
 </div>
 
 ## Requirements
