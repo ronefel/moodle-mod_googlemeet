@@ -32,27 +32,28 @@
 }}
 <div id="googlemeet_upcoming_events">
   <h4>{{# str }} upcomingevents, mod_googlemeet {{/ str }}</h4>
-    <div>
-      {{#upcomingevents}}
+  <div>
+    {{#upcomingevents}}
+      <span>
+        {{#today}}
+          {{#str}} today, googlemeet {{/str}},
+        {{/today}}
+        {{startdate}}
+      </span>
+    {{/upcomingevents}}
+    {{#duration}}
+      <span>
+        {{#str}} from, googlemeet {{/str}}
+        {{starttime}}
+        {{#str}} to, googlemeet {{/str}}
+        {{endtime}}
+      </span>
+    {{/duration}}
+    {{^duration}}
         <span>
-          {{#today}}
-            {{#str}} today, googlemeet {{/str}},
-          {{/today}}
-          {{startdate}}
-        </span>
-      {{/upcomingevents}}
-      {{#duration}}
-        <span>
-          {{#str}} from, googlemeet {{/str}}
-          {{starttime}}
-          {{#str}} to, googlemeet {{/str}}
-          {{endtime}}
-        </span>
-      {{/duration}}
-      {{^duration}}
-         <span>
-          {{starttime}}
-        </span> 
-      {{/duration}}
-    </div>
+        {{#str}} at, googlemeet {{/str}}
+        {{starttime}}
+      </span>
+    {{/duration}}
+  </div>
 </div>

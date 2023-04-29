@@ -1,0 +1,100 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_googlemeet/mobile_view_page
+
+    This template renders the mobile page.
+
+    Example context (json):
+    {
+        "googlemeet.intro": "foo",
+        "cmid": 3,
+    }
+}}
+{{=<% %>=}}
+<div>
+    <core-course-module-description description="<% googlemeet.intro %>" component="mod_googlemeet" componentId="<% cmid %>"></core-course-module-description>
+    <ion-list>
+        <ion-item lines="full">
+            <ion-label>
+                <ion-button id="googlemeet-mobile-join" class="ion-margin" expand="block" onclick="window.open('<% googlemeet.url %>', '_system');">
+                    {{ 'plugin.mod_googlemeet.entertheroom' | translate }}
+                </ion-button>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+    <%#upcomingevent%>
+    <ion-list>
+        <ion-list-header class="ion-margin-top">
+            <ion-label style="font-size: 22px; font-weight: 700; letter-spacing: 0px;">{{ 'plugin.mod_googlemeet.upcomingevents' | translate }}</ion-label>
+        </ion-list-header>
+            <%#upcomingevents%>
+            <ion-item lines="full">
+                <ion-icon name="calendar-outline"></ion-icon>
+                    <ion-label class="ion-margin-start">
+                    <%#today%>
+                        {{ 'plugin.mod_googlemeet.today' | translate }}
+                    <%/today%>
+                    <%startdate%>
+                    </ion-label>
+            </ion-item>
+            <%/upcomingevents%>
+            <%#duration%>
+                <ion-badge>
+                    {{ 'plugin.mod_googlemeet.from' | translate }}
+                    <%starttime%>
+                        {{ 'plugin.mod_googlemeet.to' | translate }}
+                    <%endtime%>
+                </ion-badge>
+            <%/duration%>
+            <%^duration%>
+            <ion-item lines="full">
+                <ion-icon name="time-outline"></ion-icon>
+                    <ion-label class="ion-margin-start">
+                    <%starttime%>
+                    </ion-label>
+            </ion-item>
+            <%/duration%>
+    </ion-list>
+    <%/upcomingevent%>
+    <ion-list>
+        <ion-list-header class="ion-margin-top">
+            <ion-label style="font-size: 22px; font-weight: 700; letter-spacing: 0px;">Recordings</ion-label>
+        </ion-list-header>
+        <ion-item lines="full">
+            <ion-label>
+                <p>Test room (6520) (2023-04-23 13:40 GMT-4)</p>
+                <p>Sunday, 23 April 2023, 6:47 PM</p>
+                <ion-button>
+                    <ion-icon slot="start" name="play"></ion-icon>
+                    1:15
+                </ion-button>
+            </ion-label>
+        </ion-item>
+        <ion-item lines="full">
+            <ion-label>
+                <p>Test room (6520) (2023-04-23 13:40 GMT-4)</p>
+                <p>Sunday, 23 April 2023, 6:47 PM</p>
+                <ion-button>
+                    <ion-icon slot="start" name="play"></ion-icon>
+                    1:15
+                </ion-button>
+            </ion-label>
+        </ion-item>
+    </ion-list>
+</div>
+

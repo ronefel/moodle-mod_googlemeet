@@ -517,11 +517,13 @@ function googlemeet_get_upcoming_events($googlemeetid) {
             array_push($upcomingevents, $upcomingevent);
         }
 
-        echo $OUTPUT->render_from_template('mod_googlemeet/upcomingevents', [
+        return [
             'upcomingevents' => $upcomingevents,
             'starttime' => userdate($start, get_string('strftimehm', 'googlemeet'), $USER->timezone),
             'endtime' => userdate($end, get_string('strftimehm', 'googlemeet'), $USER->timezone),
             'duration' => $duration,
-        ]);
+        ];
     }
+
+    return false;
 }

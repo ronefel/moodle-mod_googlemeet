@@ -95,7 +95,7 @@ if (has_capability('mod/googlemeet:editrecording', $context)) {
     }
 }
 
-googlemeet_get_upcoming_events($googlemeet->id);
+echo $OUTPUT->render_from_template('mod_googlemeet/upcomingevents', googlemeet_get_upcoming_events($googlemeet->id));
 
 googlemeet_print_recordings($googlemeet, $cm, $context);
 
