@@ -37,64 +37,79 @@
             </ion-label>
         </ion-item>
     </ion-list>
-    <%#upcomingevent%>
+
+    <%#upcomingevent.hasupcomingevents%>
     <ion-list>
-        <ion-list-header class="ion-margin-top">
-            <ion-label style="font-size: 22px; font-weight: 700; letter-spacing: 0px;">{{ 'plugin.mod_googlemeet.upcomingevents' | translate }}</ion-label>
+        <ion-list-header lines="full" class="ion-margin-top" (click)="this.showUpcomingEvents = !this.showUpcomingEvents" >
+            <ion-label style="font-size: 22px; font-weight: 700; letter-spacing: 0px;">
+                {{ 'plugin.mod_googlemeet.upcomingevents' | translate }}
+                <ion-icon *ngIf="showUpcomingEvents" name="caret-up-outline" style="top: 0.2em;"></ion-icon>
+                <ion-icon *ngIf="!showUpcomingEvents" name="caret-down-outline" style="top: 0.2em;"></ion-icon>
+            </ion-label>
         </ion-list-header>
-            <%#upcomingevents%>
+        <div *ngIf="showUpcomingEvents">
+            <%#upcomingevent.upcomingevents%>
             <ion-item lines="full">
-                <ion-icon name="calendar-outline"></ion-icon>
-                    <ion-label class="ion-margin-start">
-                    <%#today%>
-                        {{ 'plugin.mod_googlemeet.today' | translate }}
-                    <%/today%>
+                <%#today%>
+                <ion-icon name="today-outline"></ion-icon>
+                <ion-label class="ion-margin-start">
+                    {{ 'plugin.mod_googlemeet.today' | translate }},
                     <%startdate%>
-                    </ion-label>
+                </ion-label>
+                <%/today%>
+                <%^today%>
+                <ion-icon name="calendar-outline"></ion-icon>
+                <ion-label class="ion-margin-start">
+                    <%startdate%>
+                </ion-label>
+                <%/today%>
             </ion-item>
-            <%/upcomingevents%>
-            <%#duration%>
-                <ion-badge>
-                    {{ 'plugin.mod_googlemeet.from' | translate }}
-                    <%starttime%>
-                        {{ 'plugin.mod_googlemeet.to' | translate }}
-                    <%endtime%>
-                </ion-badge>
-            <%/duration%>
-            <%^duration%>
+            <%/upcomingevent.upcomingevents%>
+
+            <%#upcomingevent.duration%>
             <ion-item lines="full">
                 <ion-icon name="time-outline"></ion-icon>
-                    <ion-label class="ion-margin-start">
-                    <%starttime%>
-                    </ion-label>
+                <ion-label class="ion-margin-start">
+                    {{ 'plugin.mod_googlemeet.from' | translate }}
+                    <%upcomingevent.starttime%>
+                    {{ 'plugin.mod_googlemeet.to' | translate }}
+                    <%upcomingevent.endtime%>
+                </ion-label>
             </ion-item>
-            <%/duration%>
+            <%/upcomingevent.duration%>
+            <%^upcomingevent.duration%>
+            <ion-item lines="full">
+                <ion-icon name="time-outline"></ion-icon>
+                <ion-label class="ion-margin-start">
+                    <%upcomingevent.starttime%>
+                </ion-label>
+            </ion-item>
+            <%/upcomingevent.duration%>
+        </div>
     </ion-list>
-    <%/upcomingevent%>
+    <%/upcomingevent.hasupcomingevents%>
+
+    <%#recording.hasrecordings%>
     <ion-list>
         <ion-list-header class="ion-margin-top">
-            <ion-label style="font-size: 22px; font-weight: 700; letter-spacing: 0px;">Recordings</ion-label>
+            <ion-label style="font-size: 22px; font-weight: 700; letter-spacing: 0px;">
+                {{ 'plugin.mod_googlemeet.recordings' | translate }}
+            </ion-label>
         </ion-list-header>
+        <%#recording.recordings%>
         <ion-item lines="full">
             <ion-label>
-                <p>Test room (6520) (2023-04-23 13:40 GMT-4)</p>
-                <p>Sunday, 23 April 2023, 6:47 PM</p>
-                <ion-button>
+                <p><%name%></p>
+                <p><%createdtimeformatted%></p>
+                <ion-button onclick="window.open('<% webviewlink %>', '_system');">
                     <ion-icon slot="start" name="play"></ion-icon>
-                    1:15
+                    <%duration%>
                 </ion-button>
             </ion-label>
         </ion-item>
-        <ion-item lines="full">
-            <ion-label>
-                <p>Test room (6520) (2023-04-23 13:40 GMT-4)</p>
-                <p>Sunday, 23 April 2023, 6:47 PM</p>
-                <ion-button>
-                    <ion-icon slot="start" name="play"></ion-icon>
-                    1:15
-                </ion-button>
-            </ion-label>
-        </ion-item>
+        <%/recording.recordings%>
     </ion-list>
+    <%/recording.hasrecordings%>
+
 </div>
 

@@ -44,7 +44,8 @@ $addons = [
             ['today', 'googlemeet'],
             ['from', 'googlemeet'],
             ['to', 'googlemeet'],
-            ['at', 'googlemeet']
+            ['at', 'googlemeet'],
+            ['recordings', 'googlemeet']
         ]
     ]
 ];

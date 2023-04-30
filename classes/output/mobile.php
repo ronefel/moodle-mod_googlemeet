@@ -61,10 +61,14 @@ class mobile {
         $googlemeet = $DB->get_record('googlemeet', array('id' => $cm->instance), '*', MUST_EXIST);
         $course     = $DB->get_record('course', array('id' => $args->courseid), '*', MUST_EXIST);
 
+        $recordings = googlemeet_list_recordings(['googlemeetid' => $googlemeet->id, 'visible' => true]);
+        $hasrecordings = !empty($recordings);
+
         $data = [
             'googlemeet' => $googlemeet,
             'cmid' => $cm->id,
-            'upcomingevent' => googlemeet_get_upcoming_events($googlemeet->id)
+            'upcomingevent' => googlemeet_get_upcoming_events($googlemeet->id),
+            'recording' => ['hasrecordings' => $hasrecordings, 'recordings' => $recordings]
         ];
 
         // Completion and trigger events.
@@ -77,6 +81,7 @@ class mobile {
                     'html' => $OUTPUT->render_from_template("mod_googlemeet/mobile_view_page_$versionname", $data),
                 ],
             ],
+            'javascript' => 'this.showUpcomingEvents = '. !$hasrecordings,
             'otherdata' => '',
             'files' => '',
         ];

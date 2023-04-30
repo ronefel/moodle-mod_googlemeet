@@ -518,6 +518,7 @@ function googlemeet_get_upcoming_events($googlemeetid) {
         }
 
         return [
+            'hasupcomingevents' => true,
             'upcomingevents' => $upcomingevents,
             'starttime' => userdate($start, get_string('strftimehm', 'googlemeet'), $USER->timezone),
             'endtime' => userdate($end, get_string('strftimehm', 'googlemeet'), $USER->timezone),
