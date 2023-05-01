@@ -65,7 +65,8 @@ class mobile {
         $hasrecordings = !empty($recordings);
 
         $data = [
-            'googlemeet' => $googlemeet,
+            'intro' => $googlemeet->intro,
+            'url' => $googlemeet->url,
             'cmid' => $cm->id,
             'upcomingevent' => googlemeet_get_upcoming_events($googlemeet->id),
             'recording' => ['hasrecordings' => $hasrecordings, 'recordings' => $recordings]
