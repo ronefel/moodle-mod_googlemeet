@@ -11,6 +11,7 @@ To learn how to set up an OAuth 2 service for Google, click [here](https://githu
 <img src="https://ronefel.nimbusweb.me/box/attachment/8669017/wlb0oosfs8pgpll1o18l/EHMyOvHzWaQMnWHL/screen3.png" alt="screen3.png" width="270" />
 <img src="https://ronefel.nimbusweb.me/box/attachment/8669019/tf0y4bgv6rgvay0hc54b/MWncdrQf0Xx67Zas/screen4.png" alt="screen4.png" width="270" />
 <img src="https://ronefel.nimbusweb.me/box/attachment/8669020/zoxcrmbwgty0qd989g8z/SQwhOZtDqpMCiPiY/screen5.png" alt="screen5.png" width="270" />
+<img src="https://ronefel.nimbusweb.me/box/attachment/8703578/il2crnahoh0spr56owby/c2rpQQ0Eb5Z9co6F/screen6.png" alt="screen6.png" width="170" />
 </div>
 
 ## Requirements
