@@ -20,11 +20,6 @@
     width: 100%;
 }
 
-.googlemeet_loginbutton a {
-    font-weight: 400 !important;
-    color: #fff !important;
-}
-
 #googlemeet_auth-info {
     display: flex;
     align-items: center;
@@ -36,9 +31,9 @@
     color: #000;
     cursor: pointer;
     text-decoration: none;
-	padding: 4px;
-	border-radius: 50%;
-	display: inline-block;
+    padding: 4px;
+    border-radius: 50%;
+    display: inline-block;
     outline: none;
     vertical-align: middle;
     box-sizing: border-box;
@@ -48,7 +43,7 @@
 
 #googlemeet_picture-user:hover,
 #googlemeet_picture-user:focus {
-    background-color: rgba(60,64,67,.08);
+    background-color: rgba(60, 64, 67, .08);
     box-shadow: none;
 }
 
@@ -57,7 +52,7 @@
     border: 0;
     border-radius: 50%;
     display: block;
-    margin: 0px;
+    margin: 0;
     position: relative;
     height: 64px;
     width: 64px;
@@ -65,7 +60,7 @@
 }
 
 #googlemeet_picture-user > img:hover {
-    box-shadow: 0 1px 0 rgba(0,0,0,.15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
 }
 
 #googlemeet_user-name {
@@ -77,7 +72,7 @@
 }
 
 #googlemeet_user-name span:nth-child(1) {
-    font-size: 8pt;
+    font-size: 11px;
 }
 
 #googlemeet_user-name span:nth-child(2) {

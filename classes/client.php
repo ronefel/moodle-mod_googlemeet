@@ -307,6 +307,8 @@ class client {
     /**
      * Get recordings from Google Drive and sync with database.
      *
+     * @param object $googlemeet An object instance.
+     *
      * @return void
      */
     public function syncrecordings($googlemeet) {

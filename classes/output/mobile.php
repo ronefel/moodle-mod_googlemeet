@@ -59,7 +59,7 @@ class mobile {
         require_capability('mod/googlemeet:view', $context);
 
         $googlemeet = $DB->get_record('googlemeet', array('id' => $cm->instance), '*', MUST_EXIST);
-        $course     = $DB->get_record('course', array('id' => $args->courseid), '*', MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $args->courseid), '*', MUST_EXIST);
 
         $recordings = googlemeet_list_recordings(['googlemeetid' => $googlemeet->id, 'visible' => true]);
         $hasrecordings = !empty($recordings);

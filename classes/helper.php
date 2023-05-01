@@ -39,6 +39,7 @@ class helper {
      * @param string $api The name of the API call
      * @param array $params The parameters required by the API call
      * @param string|false $rawpost Optional param to include in the body of a post.
+     *
      * @return \stdClass The response object
      * @throws moodle_exception
      */

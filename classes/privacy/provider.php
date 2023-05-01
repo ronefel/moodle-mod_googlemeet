@@ -81,9 +81,9 @@ class provider implements
                  WHERE gnd.userid = :userid";
 
         $params = [
-            'modname'       => 'googlemeet',
-            'contextlevel'  => CONTEXT_MODULE,
-            'userid'        => $userid,
+            'modname' => 'googlemeet',
+            'contextlevel' => CONTEXT_MODULE,
+            'userid' => $userid,
         ];
 
         $contextlist = new contextlist();
@@ -114,8 +114,8 @@ class provider implements
                  WHERE cm.id = :cmid";
 
         $params = [
-            'cmid'          => $context->instanceid,
-            'modulename'    => 'choice',
+            'cmid' => $context->instanceid,
+            'modulename' => 'choice',
         ];
 
         $userlist->add_from_sql('userid', $sql, $params);
@@ -226,8 +226,8 @@ class provider implements
                 'googlemeet_notify_done',
                 "userid = :userid AND eventid IN (SELECT id FROM {googlemeet_events} WHERE googlemeetid = :googlemeetid)",
                 [
-                    'userid'        => $userid,
-                    'googlemeetid'  => $instanceid,
+                    'userid' => $userid,
+                    'googlemeetid' => $instanceid,
                 ]
             );
         }

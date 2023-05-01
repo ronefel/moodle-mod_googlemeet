@@ -373,9 +373,10 @@ class mod_googlemeet_mod_form extends moodleform_mod {
 
     /**
      * Validate the provided url
-     * @param string $eventdate
-     * @param array $errors
-     * @return bool
+     * @param string $url Url to validate.
+     * @param array $errors Form errors.
+     *
+     * @return array Form errors.
      */
     private function validate_url(string $url, array $errors) {
         if (googlemeet_clear_url($url) == null) {

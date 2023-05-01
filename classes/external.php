@@ -125,10 +125,10 @@ class mod_googlemeet_external extends external_api {
                     'recordingid' => $updaterecording['recordingId']
                 ]);
 
-                $recording->createdtime     = $updaterecording['createdTime'];
-                $recording->duration        = $updaterecording['duration'];
-                $recording->webviewlink     = $updaterecording['webViewLink'];
-                $recording->timemodified    = time();
+                $recording->createdtime = $updaterecording['createdTime'];
+                $recording->duration = $updaterecording['duration'];
+                $recording->webviewlink = $updaterecording['webViewLink'];
+                $recording->timemodified = time();
 
                 $DB->update_record('googlemeet_recordings', $recording);
             }
@@ -143,13 +143,13 @@ class mod_googlemeet_external extends external_api {
 
             foreach ($insertrecordings as $insertrecording) {
                 $recording = new stdClass();
-                $recording->googlemeetid      = $googlemeetid;
-                $recording->recordingid     = $insertrecording['recordingId'];
-                $recording->name            = $insertrecording['name'];
-                $recording->createdtime     = $insertrecording['createdTime'];
-                $recording->duration        = $insertrecording['duration'];
-                $recording->webviewlink     = $insertrecording['webViewLink'];
-                $recording->timemodified    = time();
+                $recording->googlemeetid = $googlemeetid;
+                $recording->recordingid = $insertrecording['recordingId'];
+                $recording->name = $insertrecording['name'];
+                $recording->createdtime = $insertrecording['createdTime'];
+                $recording->duration = $insertrecording['duration'];
+                $recording->webviewlink = $insertrecording['webViewLink'];
+                $recording->timemodified = time();
 
                 array_push($recordings, $recording);
             }

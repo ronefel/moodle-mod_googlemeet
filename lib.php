@@ -82,7 +82,7 @@ function googlemeet_add_instance($googlemeet, $mform = null) {
         $calendarevent = $client->create_meeting_event($googlemeet);
         $googlemeet->url = $calendarevent->hangoutLink;
 
-        $link  = new moodle_url($calendarevent->htmlLink);
+        $link = new moodle_url($calendarevent->htmlLink);
         $googlemeet->eventid = $link->get_param('eid');
         $googlemeet->originalname = $calendarevent->summary;
         $googlemeet->creatoremail = $calendarevent->creator->email;
@@ -328,10 +328,10 @@ function sync_recordings($googlemeetid, $files) {
                 'recordingid' => $updaterecording->recordingId
             ]);
 
-            $recording->createdtime     = $updaterecording->createdTime;
-            $recording->duration        = $updaterecording->duration;
-            $recording->webviewlink     = $updaterecording->webViewLink;
-            $recording->timemodified    = time();
+            $recording->createdtime = $updaterecording->createdTime;
+            $recording->duration = $updaterecording->duration;
+            $recording->webviewlink = $updaterecording->webViewLink;
+            $recording->timemodified = time();
 
             $DB->update_record('googlemeet_recordings', $recording);
         }
@@ -346,13 +346,13 @@ function sync_recordings($googlemeetid, $files) {
 
         foreach ($insertrecordings as $insertrecording) {
             $recording = new stdClass();
-            $recording->googlemeetid      = $googlemeetid;
-            $recording->recordingid     = $insertrecording->recordingId;
-            $recording->name            = $insertrecording->name;
-            $recording->createdtime     = $insertrecording->createdTime;
-            $recording->duration        = $insertrecording->duration;
-            $recording->webviewlink     = $insertrecording->webViewLink;
-            $recording->timemodified    = time();
+            $recording->googlemeetid = $googlemeetid;
+            $recording->recordingid = $insertrecording->recordingId;
+            $recording->name = $insertrecording->name;
+            $recording->createdtime = $insertrecording->createdTime;
+            $recording->duration = $insertrecording->duration;
+            $recording->webviewlink = $insertrecording->webViewLink;
+            $recording->timemodified = time();
 
             array_push($recordings, $recording);
         }

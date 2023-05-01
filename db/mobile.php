@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 global $CFG;
 $addons = [
-    "mod_googlemeet" => [ // Plugin identifier
+    "mod_googlemeet" => [ // Plugin identifier.
         "handlers" => [ // Different places where the plugin will display content.
             'coursegooglemeet' => [ // Handler unique name (alphanumeric).
                 'displaydata' => [
@@ -33,7 +33,7 @@ $addons = [
                     'icon' => $CFG->wwwroot . '/mod/googlemeet/pix/icon.png',
                     'class' => '',
                 ],
-                'delegate' => 'CoreCourseModuleDelegate', // Delegate (where to display the link to the plugin)
+                'delegate' => 'CoreCourseModuleDelegate', // Delegate (where to display the link to the plugin).
                 'method' => 'mobile_course_view' // Main function in \mod_googlemeet\output\mobile.
             ]
         ],

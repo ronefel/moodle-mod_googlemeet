@@ -62,10 +62,10 @@ $table->attributes['class'] = 'generaltable mod_index';
 
 if ($usesections) {
     $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = array($strsectionname, get_string('name'));
+    $table->head = array($strsectionname, get_string('name'));
     $table->align = array('center', 'left');
 } else {
-    $table->head  = array(get_string('name'));
+    $table->head = array(get_string('name'));
     $table->align = array('left', 'left', 'left');
 }
 
