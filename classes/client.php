@@ -198,7 +198,7 @@ class client {
                 </head>
                 <body></body>
                 </html>
-            EOD;
+EOD;
             die($js);
         }
     }
@@ -401,7 +401,7 @@ class client {
                 </head>
                 <body></body>
                 </html>
-            EOD;
+EOD;
             die($js);
         }
     }
