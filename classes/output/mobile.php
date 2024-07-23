@@ -47,7 +47,6 @@ class mobile {
         global $OUTPUT, $DB;
 
         $args = (object) $args;
-        $versionname = $args->appversioncode >= 3950 ? 'latest' : 'ionic3';
 
         $cm = get_coursemodule_from_id('googlemeet', $args->cmid);
 
@@ -69,7 +68,8 @@ class mobile {
             'url' => $googlemeet->url,
             'cmid' => $cm->id,
             'upcomingevent' => googlemeet_get_upcoming_events($googlemeet->id),
-            'recording' => ['hasrecordings' => $hasrecordings, 'recordings' => $recordings]
+            'recording' => ['hasrecordings' => $hasrecordings, 'recordings' => $recordings],
+            'canusemoduleinfo' => $args->appversioncode >= 44000,
         ];
 
         // Completion and trigger events.
@@ -79,7 +79,7 @@ class mobile {
             'templates' => [
                 [
                     'id' => 'main',
-                    'html' => $OUTPUT->render_from_template("mod_googlemeet/mobile_view_page_$versionname", $data),
+                    'html' => $OUTPUT->render_from_template('mod_googlemeet/mobile_view_page_latest', $data),
                 ],
             ],
             'javascript' => 'this.showUpcomingEvents = '. !$hasrecordings,

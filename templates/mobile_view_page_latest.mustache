@@ -55,7 +55,13 @@
 }}
 {{=<% %>=}}
 <div>
-  <core-course-module-description description="<% intro %>" component="mod_googlemeet" componentId="<% cmid %>"></core-course-module-description>
+  <%#canusemoduleinfo%>
+    <core-course-module-info [module]="module" description="<% intro %>" component="mod_googlemeet" componentId="<% cmid %>" [courseId]="courseId">
+    </core-course-module-info>
+  <%/canusemoduleinfo%>
+  <%^canusemoduleinfo%>
+    <core-course-module-description description="<% intro %>" component="mod_googlemeet" componentId="<% cmid %>"></core-course-module-description>
+  <%/canusemoduleinfo%>
   <ion-list>
     <ion-item lines="full">
       <ion-label>
